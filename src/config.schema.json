@@ -169,6 +169,11 @@
       "default": false,
       "type": "boolean"
     },
+    "log_format": {
+      "default": "plain",
+      "enum": ["plain", "timestamp", "verbose"],
+      "type": "string"
+    },
     "machine": {
       "items": {
         "pattern": "^!?(?:generic-aarch64|generic-x86-64|intel-nuc|khadas-vim3|odroid-c2|odroid-c4|odroid-n2|odroid-xu|qemuarm|qemuarm-64|qemux86|qemux86-64|raspberrypi|raspberrypi2|raspberrypi3|raspberrypi3-64|raspberrypi4|raspberrypi4-64|tinker|yellow)$"
