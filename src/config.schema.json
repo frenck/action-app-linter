@@ -311,6 +311,10 @@
       "default": false,
       "type": "boolean"
     },
+    "supervisor_api_tcp": {
+      "default": true,
+      "type": "boolean"
+    },
     "timeout": {
       "default": 10,
       "type": "integer"
