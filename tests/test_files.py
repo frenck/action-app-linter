@@ -49,3 +49,37 @@ def test_link_into_git(tmp_path: Path) -> None:
     assert [finding.message for finding in repository_files(app)] == [
         "DOCS.md links into .git; the Supervisor refuses it"
     ]
+
+
+def test_link_loop(tmp_path: Path) -> None:
+    """Test a symlink that never resolves is refused, not a crash.
+
+    Made here rather than kept as a fixture: a symlink loop in the
+    repository trips up other tools that walk it, such as the cache of
+    setup-uv in CI.
+    """
+    (tmp_path / ".git").mkdir()
+    app = _app(tmp_path / "example")
+    (app.path / "README.md").symlink_to("README.md")
+
+    assert [finding.message for finding in repository_files(app)] == [
+        "README.md is a symlink that never resolves; the Supervisor refuses it"
+    ]
+
+
+def test_link_to_nothing(tmp_path: Path) -> None:
+    """Test a symlink to a file that does not exist counts as missing.
+
+    Made here for the same reason as the loop: a dangling symlink is no
+    fixture to put in front of every tool that walks the repository.
+    """
+    (tmp_path / ".git").mkdir()
+    app = _app(tmp_path / "example")
+    (app.path / "logo.png").symlink_to("missing.png")
+
+    assert [finding.message for finding in repository_files(app)] == [
+        (
+            "logo.png links to missing.png, which does not exist; the Supervisor "
+            "treats it as missing"
+        )
+    ]
