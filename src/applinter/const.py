@@ -7,8 +7,9 @@ the next person can check whether it still holds.
 
 import re
 
-# supervisor/const.py: ARCH_DEPRECATED. No longer supported since Home
-# Assistant 2025.12.
+# supervisor/const.py: ARCH_ALL and ARCH_DEPRECATED. The 32-bit ones are no
+# longer supported since Home Assistant 2025.12.
+ARCH_SUPPORTED = frozenset({"aarch64", "amd64"})
 ARCH_DEPRECATED = frozenset({"armhf", "armv7", "i386"})
 
 # supervisor/const.py: MACHINE_DEPRECATED. Dropped with the architectures.
@@ -74,4 +75,16 @@ RE_IMAGE_DOMAIN = re.compile(
 _IMAGE_ALPHANUMERIC = r"(?:[a-z0-9]|\{[a-z]+\})+"
 RE_IMAGE_PATH_COMPONENT = re.compile(
     rf"^{_IMAGE_ALPHANUMERIC}(?:(?:[._]|__|-+){_IMAGE_ALPHANUMERIC})*$"
+)
+
+# supervisor/apps/model.py and supervisor/api/store.py: the files of an app the
+# Supervisor only reads when they stay inside the repository, through
+# resolve_in_repository() and read_in_repository().
+REPOSITORY_FILES = (
+    "CHANGELOG.md",
+    "DOCS.md",
+    "README.md",
+    "apparmor.txt",
+    "icon.png",
+    "logo.png",
 )

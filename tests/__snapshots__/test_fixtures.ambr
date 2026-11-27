@@ -1,4 +1,11 @@
 # serializer version: 1
+# name: test_app[arch-unsupported]
+  list([
+    "arch-unsupported/config.yaml:6: error: 'arch' has no architecture Home Assistant supports; add 'aarch64' or 'amd64' [arch-unsupported]",
+    "arch-unsupported/config.yaml:7: warning: Architecture 'armv7' is no longer supported since Home Assistant 2025.12; remove it from 'arch' [deprecated-arch]",
+    "arch-unsupported/config.yaml:8: warning: Architecture 'i386' is no longer supported since Home Assistant 2025.12; remove it from 'arch' [deprecated-arch]",
+  ])
+# ---
 # name: test_app[broken-json]
   list([
     "broken-json/config.json:3: error: Not valid JSON: Expecting ':' delimiter [invalid-file]",
@@ -104,6 +111,11 @@
     'empty-file/config.yaml: error: The file is empty [invalid-file]',
   ])
 # ---
+# name: test_app[empty-name]
+  list([
+    "empty-name/config.yaml:2: error: 'name': '' should be non-empty [schema]",
+  ])
+# ---
 # name: test_app[hardware]
   list([
     "hardware/config.yaml:8: warning: 'full_access' gives the app all hardware; consider options such as 'devices' instead [full-access]",
@@ -166,6 +178,13 @@
     "invalid-values/config.yaml:35: error: 'options' must be of type object, not array [schema]",
     "invalid-values/config.yaml:37: error: 'ulimits.nofile' needs 'hard' [schema]",
     "invalid-values/config.yaml:39: error: 'unknown_option' is not a known option [unknown-key]",
+    'invalid-values/config.yaml:40: error: \'homeassistant\' is "latest", expected a Home Assistant version, such as 2024.6.0 or 2024.6.0b1 [schema]',
+  ])
+# ---
+# name: test_app[legacy-nested-options]
+  list([
+    "legacy-nested-options/config.yaml:12: warning: Option 'ratio' is not a whole number or text, so a legacy app does not get it as an environment variable [legacy-nested-option]",
+    "legacy-nested-options/config.yaml:13: warning: Option 'users' is not a whole number or text, so a legacy app does not get it as an environment variable [legacy-nested-option]",
   ])
 # ---
 # name: test_app[list-root]
@@ -173,10 +192,26 @@
     'list-root/config.yaml:1: error: The file must hold a mapping of keys and values, not a list [invalid-file]',
   ])
 # ---
+# name: test_app[machine-deprecated-only]
+  list([
+    "machine-deprecated-only/config.yaml:8: error: 'machine' only lists machines Home Assistant no longer supports [machine-unavailable]",
+    "machine-deprecated-only/config.yaml:9: warning: Machine 'raspberrypi3' is no longer supported by Home Assistant; remove it from 'machine' [deprecated-machine]",
+  ])
+# ---
+# name: test_app[machine-excludes-only]
+  list([
+    "machine-excludes-only/config.yaml:8: error: 'machine' only excludes machines, but the Supervisor only installs apps on machines in the list, so this app installs nowhere; list the machines it supports, or remove 'machine' [machine-unavailable]",
+  ])
+# ---
 # name: test_app[map-conflicts]
   list([
     "map-conflicts/config.yaml:9: error: 'map' has 'config' together with 'app_config', 'homeassistant_config', which the Supervisor ignores when 'config' is mapped [map-conflict]",
     "map-conflicts/config.yaml:12: error: 'map' has both 'addons' and 'local_apps'; the Supervisor ignores 'addons', remove it [map-conflict]",
+  ])
+# ---
+# name: test_app[map-not-a-list]
+  list([
+    "map-not-a-list/config.yaml:8: error: 'map' must be of type array, not boolean [schema]",
   ])
 # ---
 # name: test_app[minimal]
@@ -197,8 +232,11 @@
   list([
     "options/config.yaml:12: warning: 'ports_description' describes port '9090/tcp', which is not in 'ports' [port-description-unknown]",
     "options/config.yaml:15: error: Option 'leftover' is not in 'schema', so the Supervisor drops it [option-not-in-schema]",
+    "options/translations/English.yaml: warning: 'English.yaml' is not named after a language code, such as en.yaml or pt-BR.yaml, so it is never used [translation-filename]",
     "options/translations/en.yaml:5: warning: Option 'removed_option' is not in 'schema' of the configuration [translation-unknown-option]",
-    "options/translations/en.yaml:9: warning: Port '1234/tcp' is not in 'ports' of the configuration [translation-unknown-port]",
+    "options/translations/en.yaml:12: warning: Option 'users.email' is not in 'schema' of the configuration [translation-unknown-option]",
+    "options/translations/en.yaml:16: warning: Option 'ssl' has 'fields', but no nested options in 'schema' [translation-unknown-option]",
+    "options/translations/en.yaml:21: warning: Port '1234/tcp' is not in 'ports' of the configuration [translation-unknown-port]",
   ])
 # ---
 # name: test_app[schema-disabled]
@@ -222,6 +260,14 @@
     "translations-invalid/translations/en.yaml:3: warning: Option 'log_level' is not in 'schema' of the configuration [translation-unknown-option]",
     "translations-invalid/translations/en.yaml:5: error: 'network' must be of type object, not string [schema]",
     "translations-invalid/translations/en.yaml:6: error: 'services' is not a known option [unknown-key]",
+  ])
+# ---
+# name: test_app[unreadable-files]
+  list([
+    'unreadable-files/CHANGELOG.md: error: CHANGELOG.md links to something that is not a file; the Supervisor treats it as missing [unreadable-file]',
+    'unreadable-files/README.md: error: README.md is a symlink that never resolves; the Supervisor refuses it [unreadable-file]',
+    'unreadable-files/icon.png: error: icon.png links to /etc/hosts, outside the repository; the Supervisor refuses it, copy the file instead [unreadable-file]',
+    'unreadable-files/logo.png: error: logo.png links to missing.png, which does not exist; the Supervisor treats it as missing [unreadable-file]',
   ])
 # ---
 # name: test_app[valid-json]

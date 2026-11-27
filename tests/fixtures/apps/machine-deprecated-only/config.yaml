@@ -1,0 +1,10 @@
+---
+name: Machine deprecated only
+version: 1.0.0
+slug: machine_deprecated
+description: Only machines Home Assistant dropped
+arch:
+  - aarch64
+machine:
+  - raspberrypi3
+  - "!green"

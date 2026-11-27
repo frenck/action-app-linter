@@ -37,6 +37,12 @@ class App:
         return schema if isinstance(schema, dict) else None
 
 
+def items(data: dict[str, Any], key: str) -> list[Any]:
+    """Return a value that should be a list, or an empty one."""
+    value = data.get(key)
+    return value if isinstance(value, list) else []
+
+
 def mapping(data: dict[str, Any], key: str) -> dict[str, Any]:
     """Return a value that should be a mapping, or an empty one."""
     value = data.get(key)

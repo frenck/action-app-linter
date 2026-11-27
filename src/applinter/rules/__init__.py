@@ -5,7 +5,7 @@ have failed the schema, so they never trust a value to have the right type.
 Importing a module registers its checks.
 """
 
-from . import build, community, config, translations
+from . import build, community, config, files, translations
 from .registry import CHECKS, check
 
-__all__ = ["CHECKS", "build", "check", "community", "config", "translations"]
+__all__ = ["CHECKS", "build", "check", "community", "config", "files", "translations"]

@@ -64,6 +64,9 @@ Each finding names its rule, so you can look it up here, or skip it with the
 | `invalid-image`              | error   | `image` is not a valid image name.                                            |
 | `invalid-slug`               | error   | The slug is too long, or does not make a valid image name.                    |
 | `invalid-url`                | error   | `url` is not a valid URL.                                                     |
+| `arch-unsupported`           | error   | The app supports no architecture Home Assistant still runs on.                |
+| `machine-unavailable`        | error   | `machine` leaves no machine the app can be installed on.                      |
+| `legacy-nested-option`       | warning | A legacy app has an option that cannot be passed as an environment variable.  |
 | `option-not-in-schema`       | error   | An option has no entry in the schema, so the Supervisor drops it.             |
 | `port-description-unknown`   | warning | `ports_description` describes a port that is not in `ports`.                  |
 | `map-conflict`               | error   | `map` holds folders that rule each other out.                                 |
@@ -91,6 +94,8 @@ Each finding names its rule, so you can look it up here, or skip it with the
 | `build-arch-unused`          | warning | A base image in `build.yaml` is for an architecture the app does not support. |
 | `translation-unknown-option` | warning | A translation names an option that is not in the schema.                      |
 | `translation-unknown-port`   | warning | A translation describes a port that is not in `ports`.                        |
+| `translation-filename`       | warning | A translation file is not named after a language code.                        |
+| `unreadable-file`            | error   | A symlinked file of the app that the Supervisor refuses or cannot read.       |
 | `community-version`          | error   | The version of a community app is `dev`; releases set the real one.           |
 | `community-build-file`       | error   | A community app needs a `build.yaml` with a base image per architecture.      |
 

@@ -1,0 +1,7 @@
+---
+name: ""
+version: 1.0.0
+slug: empty_name
+description: An app without a name
+arch:
+  - amd64

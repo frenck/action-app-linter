@@ -68,8 +68,10 @@ def display_path(path: Path) -> str:
     GitHub resolves annotation paths against the workspace, which is where
     the action runs.
     """
+    # absolute(), not resolve(): a symlink is reported as itself, not as
+    # where it points.
     try:
-        return str(path.resolve().relative_to(Path.cwd().resolve()))
+        return str(path.absolute().relative_to(Path.cwd()))
     except ValueError:
         return os.fspath(path)
 

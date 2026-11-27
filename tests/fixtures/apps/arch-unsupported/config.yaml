@@ -1,0 +1,8 @@
+---
+name: Arch unsupported
+version: 1.0.0
+slug: arch_unsupported
+description: Only architectures Home Assistant dropped
+arch:
+  - armv7
+  - i386

@@ -15,3 +15,7 @@ options:
   leftover: true
 schema:
   log_level: list(info|debug)
+  users:
+    - name: str
+      age: int?
+  ssl: bool

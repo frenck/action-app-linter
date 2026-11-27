@@ -1,0 +1,10 @@
+---
+name: Machine excludes only
+version: 1.0.0
+slug: machine_excludes
+description: Excludes machines, includes none
+arch:
+  - amd64
+machine:
+  - "!green"
+  - "!yellow"

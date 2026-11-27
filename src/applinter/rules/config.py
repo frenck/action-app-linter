@@ -5,9 +5,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from urllib.parse import urlparse
 
-from applinter.app import mapping, strings
+from applinter.app import items, mapping, strings
 from applinter.const import (
     ARCH_DEPRECATED,
+    ARCH_SUPPORTED,
     INGRESS_DYNAMIC_PORTS,
     MACHINE_DEPRECATED,
     MAP_TYPES_CONFLICTING_WITH_CONFIG,
@@ -222,7 +223,7 @@ def deprecated_formats(app: App) -> Iterator[Finding]:
 def map_folders(app: App) -> Iterator[Finding]:
     """Check the folders in map for legacy names and conflicts."""
     types: dict[str, int] = {}
-    for index, entry in enumerate(app.config.data.get("map") or []):
+    for index, entry in enumerate(items(app.config.data, "map")):
         if (map_type := _map_type(entry)) is not None:
             types.setdefault(map_type, index)
 
@@ -470,3 +471,87 @@ def _map_type(entry: object) -> str | None:
         return match.group(1)
 
     return None
+
+
+ARCH_UNSUPPORTED = define_rule(
+    "arch-unsupported",
+    Level.ERROR,
+    "The app supports no architecture Home Assistant still runs on.",
+)
+MACHINE_UNAVAILABLE = define_rule(
+    "machine-unavailable",
+    Level.ERROR,
+    "'machine' leaves no machine the app can be installed on.",
+)
+LEGACY_NESTED_OPTION = define_rule(
+    "legacy-nested-option",
+    Level.WARNING,
+    "A legacy app has an option that cannot be passed as an environment variable.",
+)
+
+
+@check
+def arch_supported(app: App) -> Iterator[Finding]:
+    """Check the app runs on at least one architecture that is still supported.
+
+    Otherwise the Supervisor suggests users remove it: supervisor/apps/app.py,
+    IssueType.DEPRECATED_ARCH_APP.
+    """
+    if not isinstance(app.config.data.get("arch"), list):
+        return
+
+    if not ARCH_SUPPORTED & set(app.arch):
+        supported = " or ".join(f"'{arch}'" for arch in sorted(ARCH_SUPPORTED))
+        yield app.config.finding(
+            ARCH_UNSUPPORTED,
+            f"'arch' has no architecture Home Assistant supports; add {supported}",
+            ("arch",),
+        )
+
+
+@check
+def machine_available(app: App) -> Iterator[Finding]:
+    """Check the machine list leaves a machine to install the app on.
+
+    The Supervisor only installs an app on a machine that is in the list,
+    so a list of exclusions alone rules out every machine:
+    supervisor/apps/model.py, _validate_availability().
+    """
+    machines = strings(app.config.data, "machine")
+    if not machines:
+        return
+
+    included = [machine for machine in machines if not machine.startswith("!")]
+    if not included:
+        yield app.config.finding(
+            MACHINE_UNAVAILABLE,
+            "'machine' only excludes machines, but the Supervisor only installs "
+            "apps on machines in the list, so this app installs nowhere; list the "
+            "machines it supports, or remove 'machine'",
+            ("machine",),
+        )
+    elif all(machine in MACHINE_DEPRECATED for machine in included):
+        yield app.config.finding(
+            MACHINE_UNAVAILABLE,
+            "'machine' only lists machines Home Assistant no longer supports",
+            ("machine",),
+        )
+
+
+@check
+def legacy_options(app: App) -> Iterator[Finding]:
+    """Check a legacy app only has options that fit in an environment variable.
+
+    supervisor/docker/app.py: environment, which skips the others.
+    """
+    if not app.config.data.get("legacy"):
+        return
+
+    for key, value in mapping(app.config.data, "options").items():
+        if not isinstance(value, (int, str)):
+            yield app.config.finding(
+                LEGACY_NESTED_OPTION,
+                f"Option '{key}' is not a whole number or text, so a legacy app "
+                "does not get it as an environment variable",
+                ("options", key),
+            )

@@ -37,3 +37,4 @@ ulimits:
   nofile:
     soft: 1024
 unknown_option: true
+homeassistant: latest

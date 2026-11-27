@@ -29,7 +29,7 @@ def test_warnings_pass(capsys: pytest.CaptureFixture[str]) -> None:
     capsys.readouterr()
 
     assert main(["options", "--ignore", "option-not-in-schema"]) == 0
-    assert capsys.readouterr().out.endswith("Found 0 errors and 3 warnings\n")
+    assert capsys.readouterr().out.endswith("Found 0 errors and 6 warnings\n")
 
 
 @pytest.mark.usefixtures("apps")
@@ -123,3 +123,12 @@ def test_ignore_adds_to_action_input(
 
     assert main(["hardware", "--ignore", "full-access-redundant,default-value"]) == 0
     assert capsys.readouterr().out == "No problems found\n"
+
+
+def test_version(capsys: pytest.CaptureFixture[str]) -> None:
+    """Test the version is shown, read from the package metadata."""
+    with pytest.raises(SystemExit) as exit_info:
+        main(["--version"])
+
+    assert exit_info.value.code == 0
+    assert capsys.readouterr().out == "app-linter 0.0.0\n"

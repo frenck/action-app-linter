@@ -1,0 +1,8 @@
+---
+name: Map not a list
+version: 1.0.0
+slug: map_not_a_list
+description: A map that is not a list
+arch:
+  - amd64
+map: true
