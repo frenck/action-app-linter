@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from collections.abc import Sequence
+from collections.abc import Iterator, Sequence
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
@@ -24,6 +24,7 @@ DUPLICATE_KEY = define_rule(
     "A key is set more than once; only the last one counts.",
 )
 _MERGE_TAG = "tag:yaml.org,2002:merge"
+_TIMESTAMP_TAG = "tag:yaml.org,2002:timestamp"
 
 INVALID_FILE = define_rule(
     "invalid-file", Level.ERROR, "A file is not valid YAML or JSON, or not a mapping."
@@ -72,6 +73,7 @@ def load(path: Path) -> tuple[Document | None, list[Finding]]:
 
 def _load_yaml(path: Path, text: str) -> tuple[Document | None, list[Finding]]:
     """Read a YAML file, building the data from the same nodes the lines come from."""
+    node = None
     try:
         # The loader already reads the text, and refuses characters YAML
         # does not allow, while it is created.
@@ -84,13 +86,15 @@ def _load_yaml(path: Path, text: str) -> tuple[Document | None, list[Finding]]:
             data = loader.construct_document(node) if node is not None else None
         finally:
             loader.dispose()
+    except yaml.reader.ReaderError as err:
+        return None, [_reader_error(path, text, err)]
     except yaml.MarkedYAMLError as err:
         return None, [_yaml_error(path, err)]
-    except yaml.YAMLError as err:
-        return None, [Finding(INVALID_FILE, f"Not valid YAML: {err}", path)]
+    except _SelfReferenceError as err:
+        message = "Not valid YAML: an anchor contains an alias to itself"
+        return None, [Finding(INVALID_FILE, message, path, err.line)]
     except ValueError as err:
-        # Values YAML reads but Python cannot hold, such as the date 2025-02-30.
-        return None, [Finding(INVALID_FILE, f"Not valid YAML: {err}", path)]
+        return None, [_impossible_value(path, node, err)]
 
     return _document(path, data, lines, findings)
 
@@ -139,24 +143,55 @@ def _index(
     path: Path, node: yaml.Node | None
 ) -> tuple[dict[tuple[str, ...], int], list[Finding]]:
     """Return the line of every key and list item, and the duplicate keys."""
-    lines: dict[tuple[str, ...], int] = {}
-    findings: list[Finding] = []
+    indexer = _Indexer(path)
     if node is not None:
-        _walk(path, node, (), lines, findings)
+        indexer.walk(node, (), frozenset())
 
-    return lines, findings
+    return indexer.lines, indexer.findings
 
 
-def _walk(
-    path: Path,
-    node: yaml.Node,
-    key_path: tuple[str, ...],
-    lines: dict[tuple[str, ...], int],
-    findings: list[Finding],
-) -> None:
-    """Record the line of every key and list item, and find duplicate keys."""
-    if isinstance(node, yaml.MappingNode):
-        seen: set[str] = set()
+@dataclass(slots=True)
+class _Indexer:
+    """Walks the nodes of a file once, recording lines and duplicate keys."""
+
+    path: Path
+    lines: dict[tuple[str, ...], int] = field(default_factory=dict)
+    findings: list[Finding] = field(default_factory=list)
+    seen: set[int] = field(default_factory=set)
+
+    def walk(
+        self, node: yaml.Node, key_path: tuple[str, ...], ancestors: frozenset[int]
+    ) -> None:
+        """Record the line of every key and list item under a node.
+
+        An alias is the very node of its anchor, so a node shows up once per
+        alias. It is walked only the first time: its lines and duplicates are
+        those of the anchor, and a file of nested aliases cannot blow up the
+        walk. A node that is its own ancestor would never end the data at all.
+        """
+        if id(node) in ancestors:
+            raise _SelfReferenceError(node.start_mark.line + 1)
+        if id(node) in self.seen:
+            return
+        self.seen.add(id(node))
+        ancestors |= {id(node)}
+
+        if isinstance(node, yaml.MappingNode):
+            self._walk_mapping(node, key_path, ancestors)
+        elif isinstance(node, yaml.SequenceNode):
+            for index, item_node in enumerate(node.value):
+                item_path = (*key_path, str(index))
+                self.lines[item_path] = item_node.start_mark.line + 1
+                self.walk(item_node, item_path, ancestors)
+
+    def _walk_mapping(
+        self,
+        node: yaml.MappingNode,
+        key_path: tuple[str, ...],
+        ancestors: frozenset[int],
+    ) -> None:
+        """Record the keys of a mapping, and find the ones set twice."""
+        keys: set[str] = set()
         for key_node, value_node in node.value:
             # A merge key (<<) pulls in another mapping; its own keys may
             # be overridden here, which is the point of it.
@@ -166,27 +201,79 @@ def _walk(
             key = str(key_node.value)
             child_path = (*key_path, key)
 
-            if key in seen:
-                findings.append(
+            if key in keys:
+                self.findings.append(
                     Finding(
                         DUPLICATE_KEY,
                         f"'{'.'.join(child_path)}' is set more than once; "
                         "only the last one counts",
-                        path,
+                        self.path,
                         key_node.start_mark.line + 1,
                     )
                 )
 
             # The last one wins in the data, so it wins here too.
-            seen.add(key)
-            lines[child_path] = key_node.start_mark.line + 1
-            _walk(path, value_node, child_path, lines, findings)
+            keys.add(key)
+            self.lines[child_path] = key_node.start_mark.line + 1
+            self.walk(value_node, child_path, ancestors)
 
-    elif isinstance(node, yaml.SequenceNode):
-        for index, item_node in enumerate(node.value):
-            item_path = (*key_path, str(index))
-            lines[item_path] = item_node.start_mark.line + 1
-            _walk(path, item_node, item_path, lines, findings)
+
+class _SelfReferenceError(Exception):
+    """An anchor that contains an alias to itself."""
+
+    def __init__(self, line: int) -> None:
+        """Remember the line of the anchor."""
+        super().__init__(line)
+        self.line = line
+
+
+def _reader_error(path: Path, text: str, err: yaml.reader.ReaderError) -> Finding:
+    """Turn a character YAML does not allow into a finding on its line."""
+    line = text.count("\n", 0, err.position) + 1
+    code = ord(err.character) if isinstance(err.character, str) else err.character
+    message = f"Not valid YAML: the character #x{code:04x} is not allowed"
+    return Finding(INVALID_FILE, message, path, line)
+
+
+def _impossible_value(path: Path, node: yaml.Node | None, err: ValueError) -> Finding:
+    """Find the value YAML reads but Python cannot hold: a date that does not exist.
+
+    YAML reads 2025-02-30 as a date, unquoted, and building the data fails on
+    it. The nodes still have it, with its line.
+    """
+    constructor = yaml.SafeLoader("")
+    for scalar in _scalars(node):
+        if scalar.tag != _TIMESTAMP_TAG:
+            continue
+        try:
+            constructor.construct_yaml_timestamp(scalar)
+        except ValueError:
+            return Finding(
+                INVALID_FILE,
+                f"Not valid YAML: {scalar.value} is not a date that exists; "
+                "put it in quotes if it is not meant as a date",
+                path,
+                scalar.start_mark.line + 1,
+            )
+
+    # Dates are the only known cause; anything else still gets reported.
+    return Finding(INVALID_FILE, f"Not valid YAML: {err}", path)  # pragma: no cover
+
+
+def _scalars(node: yaml.Node | None) -> Iterator[yaml.ScalarNode]:
+    """Yield every scalar under a node, each node once."""
+    stack, seen = [node], set()
+    while stack:
+        current = stack.pop()
+        if current is None or id(current) in seen:
+            continue
+        seen.add(id(current))
+        if isinstance(current, yaml.ScalarNode):
+            yield current
+        elif isinstance(current, yaml.MappingNode):
+            stack.extend(item for pair in current.value for item in pair)
+        elif isinstance(current, yaml.SequenceNode):
+            stack.extend(current.value)
 
 
 def _yaml_error(path: Path, err: yaml.MarkedYAMLError) -> Finding:

@@ -1,0 +1,13 @@
+---
+name: Nested aliases
+version: 1.0.0
+slug: nested_aliases
+description: Aliases of aliases, ten thousand values from a few lines
+arch:
+  - amd64
+schema: false
+options:
+  a: &a [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+  b: &b [*a, *a, *a, *a, *a, *a, *a, *a, *a, *a]
+  c: &c [*b, *b, *b, *b, *b, *b, *b, *b, *b, *b]
+  d: [*c, *c, *c, *c, *c, *c, *c, *c, *c, *c]

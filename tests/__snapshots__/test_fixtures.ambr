@@ -48,6 +48,11 @@
   list([
   ])
 # ---
+# name: test_app[control-character]
+  list([
+    'control-character/config.yaml:2: error: Not valid YAML: the character #x0007 is not allowed [invalid-file]',
+  ])
+# ---
 # name: test_app[date-version]
   list([
     "date-version/config.yaml:3: error: 'version' must be of type string, not date; put it in quotes [schema]",
@@ -125,6 +130,36 @@
     "hardware/config.yaml:12: error: 'devices' is not needed with 'full_access'; remove it [full-access-redundant]",
   ])
 # ---
+# name: test_app[image-empty]
+  list([
+    "image-empty/config.yaml:8: error: 'image' is empty [invalid-image]",
+  ])
+# ---
+# name: test_app[image-invalid-part]
+  list([
+    "image-invalid-part/config.yaml:8: error: 'image' has an invalid part 'Example'; use lowercase letters, digits and separators such as - and . [invalid-image]",
+  ])
+# ---
+# name: test_app[image-invalid-registry]
+  list([
+    "image-invalid-registry/config.yaml:8: error: 'image' has an invalid registry 'bad_registry.io' [invalid-image]",
+  ])
+# ---
+# name: test_app[image-no-name]
+  list([
+    "image-no-name/config.yaml:8: error: 'image' has no name after the registry [invalid-image]",
+  ])
+# ---
+# name: test_app[image-uppercase-registry]
+  list([
+    "image-uppercase-registry/config.yaml:8: error: 'image' must have a lowercase registry, not 'GHCR.io' [invalid-image]",
+  ])
+# ---
+# name: test_app[impossible-date]
+  list([
+    'impossible-date/config.yaml:10: error: Not valid YAML: 2025-02-30 is not a date that exists; put it in quotes if it is not meant as a date [invalid-file]',
+  ])
+# ---
 # name: test_app[ingress-fixed]
   list([
     "ingress-fixed/config.yaml:10: error: 'webui' is not used with Ingress; remove it [ingress-webui]",
@@ -181,6 +216,11 @@
     'invalid-values/config.yaml:40: error: \'homeassistant\' is "latest", expected a Home Assistant version, such as 2024.6.0 or 2024.6.0b1 [schema]',
   ])
 # ---
+# name: test_app[json-without-lines]
+  list([
+    "json-without-lines/config.json: error: 'timeout': 5 is less than the minimum of 10 [schema]",
+  ])
+# ---
 # name: test_app[legacy-nested-options]
   list([
     "legacy-nested-options/config.yaml:12: warning: Option 'ratio' is not a whole number or text, so a legacy app does not get it as an environment variable [legacy-nested-option]",
@@ -223,9 +263,23 @@
     'multiple-configs/config.json: error: Found config.yaml and config.json; keep only one, the linter checked config.yaml [multiple-files]',
   ])
 # ---
+# name: test_app[multiple-documents]
+  list([
+    'multiple-documents/config.yaml:8: error: Not valid YAML: expected a single document in the stream, but found another document [invalid-file]',
+  ])
+# ---
+# name: test_app[nested-aliases]
+  list([
+  ])
+# ---
 # name: test_app[no-config]
   list([
     'no-config: error: There is no config.yaml, config.yml or config.json [app-not-found]',
+  ])
+# ---
+# name: test_app[not-utf8]
+  list([
+    "not-utf8/config.yaml: error: Cannot read the file: 'utf-8' codec can't decode byte 0xe9 in position 13: invalid continuation byte [invalid-file]",
   ])
 # ---
 # name: test_app[options]
@@ -241,6 +295,11 @@
 # ---
 # name: test_app[schema-disabled]
   list([
+  ])
+# ---
+# name: test_app[self-referencing-anchor]
+  list([
+    'self-referencing-anchor/config.yaml:9: error: Not valid YAML: an anchor contains an alias to itself [invalid-file]',
   ])
 # ---
 # name: test_app[slug-not-an-image]
@@ -266,6 +325,7 @@
   list([
     'unreadable-files/CHANGELOG.md: error: CHANGELOG.md links to something that is not a file; the Supervisor treats it as missing [unreadable-file]',
     'unreadable-files/README.md: error: README.md is a symlink that never resolves; the Supervisor refuses it [unreadable-file]',
+    'unreadable-files/apparmor.txt: error: apparmor.txt links into .git; the Supervisor refuses it [unreadable-file]',
     'unreadable-files/icon.png: error: icon.png links to /etc/hosts, outside the repository; the Supervisor refuses it, copy the file instead [unreadable-file]',
     'unreadable-files/logo.png: error: logo.png links to missing.png, which does not exist; the Supervisor treats it as missing [unreadable-file]',
   ])
@@ -276,6 +336,11 @@
 # ---
 # name: test_app[valid]
   list([
+  ])
+# ---
+# name: test_app[yaml-merge-keys]
+  list([
+    "yaml-merge-keys/config.yaml:8: error: Option 'leftover' is not in 'schema', so the Supervisor drops it [option-not-in-schema]",
   ])
 # ---
 # name: test_app_community[build-single-image]

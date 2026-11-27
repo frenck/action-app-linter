@@ -1,0 +1,8 @@
+{
+  "name": "No lines",
+  "version": "1.0.0",
+  "slug": "no_lines",
+  "description": "JSON with a DEL character, which YAML refuses: ",
+  "arch": ["amd64"],
+  "timeout": 5
+}

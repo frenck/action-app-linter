@@ -93,10 +93,7 @@ def test_unreadable_file(tmp_path: Path) -> None:
         ),
         (
             "name: \x07\n",
-            (
-                "Not valid YAML: unacceptable character #x0007: special characters "
-                'are not allowed\n  in "<unicode string>", position 6'
-            ),
+            "Not valid YAML: the character #x0007 is not allowed",
         ),
         (
             "a: !!python/name:os.system\n",
@@ -138,7 +135,13 @@ def test_yaml_impossible_date(tmp_path: Path) -> None:
 
     document, findings = load(path)
 
-    # Python words the problem differently per version.
     assert document is None
-    assert [finding.rule.id for finding in findings] == ["invalid-file"]
-    assert findings[0].message.startswith("Not valid YAML: day ")
+    assert [(finding.message, finding.line) for finding in findings] == [
+        (
+            (
+                "Not valid YAML: 2025-02-30 is not a date that exists; put it in "
+                "quotes if it is not meant as a date"
+            ),
+            2,
+        )
+    ]

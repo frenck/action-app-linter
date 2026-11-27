@@ -1,0 +1,10 @@
+---
+name: Self reference
+version: 1.0.0
+slug: self_reference
+description: An anchor that contains itself
+arch:
+  - amd64
+options:
+  loop: &loop
+    - *loop

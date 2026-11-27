@@ -1,0 +1,7 @@
+---
+name: Café
+version: 1.0.0
+slug: not_utf8
+description: Saved as Latin-1
+arch:
+  - amd64

@@ -1,0 +1,7 @@
+---
+name: Controlcharacter
+version: 1.0.0
+slug: control
+description: A bell in the name
+arch:
+  - amd64

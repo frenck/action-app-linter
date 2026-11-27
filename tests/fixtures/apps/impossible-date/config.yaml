@@ -1,0 +1,13 @@
+---
+name: Impossible date
+version: 1.0.0
+slug: impossible_date
+description: A date that does not exist, found past a list and an alias
+arch:
+  - amd64
+schema: false
+options:
+  since: 2025-02-30
+  holidays: &holidays
+    - 2025-12-25
+  also: *holidays

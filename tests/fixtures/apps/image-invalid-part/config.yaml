@@ -1,0 +1,8 @@
+---
+name: Image
+version: 1.0.0
+slug: image
+description: An image the Supervisor refuses
+arch:
+  - amd64
+image: ghcr.io/Example/app

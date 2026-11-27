@@ -3,7 +3,7 @@
 	"version": "dev",
 	"slug": "example",
 	"description": "Example app",
-	"image": "ghcr.io/example/{arch}-example",
+	"image": "homeassistant/{arch}-addon-example",
 	"arch": [
 		"aarch64",
 		"amd64"
