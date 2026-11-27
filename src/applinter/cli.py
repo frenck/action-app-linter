@@ -6,9 +6,8 @@ import argparse
 import os
 import re
 import sys
-from importlib.metadata import version
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from .findings import RULES, Level
 from .linter import lint
@@ -87,9 +86,35 @@ def _parser() -> argparse.ArgumentParser:
         help="github prints annotations; auto does when it runs on GitHub Actions",
     )
     parser.add_argument(
-        "--version", action="version", version=f"%(prog)s {version('app-linter')}"
+        "--version", action=_VersionAction, help="show the version and exit"
     )
     return parser
+
+
+class _VersionAction(argparse.Action):
+    """Print the version, reading it only when asked for.
+
+    Reading package metadata costs a tenth of a second at startup, which every
+    run of the action would pay for a flag it never uses.
+    """
+
+    def __init__(self, option_strings: list[str], dest: str, **kwargs: Any) -> None:
+        """Take no value, like the built-in version action."""
+        super().__init__(option_strings, dest, nargs=0, **kwargs)
+
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,  # noqa: ARG002 - argparse hands it over
+        values: str | Sequence[Any] | None,  # noqa: ARG002
+        option_string: str | None = None,  # noqa: ARG002
+    ) -> None:
+        """Print the version and stop."""
+        from importlib.metadata import version  # noqa: PLC0415  # pylint: disable=import-outside-toplevel
+
+        # On stdout, like the version action of argparse itself.
+        sys.stdout.write(f"{parser.prog} {version('app-linter')}\n")
+        parser.exit()
 
 
 def _input_paths() -> list[Path]:

@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from datetime import date
 from functools import cache
-from importlib import resources
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from jsonschema import Draft7Validator
@@ -36,7 +36,7 @@ _UMBRELLA_KEYWORDS = {"anyOf", "oneOf"}
 @cache
 def load_schema(name: str) -> dict[str, Any]:
     """Return one of the bundled schemas, by file name without extension."""
-    schema_file = resources.files(__package__) / "schemas" / f"{name}.schema.json"
+    schema_file = Path(__file__).parent / "schemas" / f"{name}.schema.json"
     return json.loads(schema_file.read_text(encoding="utf-8"))
 
 
