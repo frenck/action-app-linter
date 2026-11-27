@@ -83,3 +83,18 @@ def test_link_to_nothing(tmp_path: Path) -> None:
             "treats it as missing"
         )
     ]
+
+
+def test_link_to_directory(tmp_path: Path) -> None:
+    """Test a symlink to a directory counts as missing, not as the file."""
+    (tmp_path / ".git").mkdir()
+    app = _app(tmp_path / "example")
+    (app.path / "notes").mkdir()
+    (app.path / "CHANGELOG.md").symlink_to("notes")
+
+    assert [finding.message for finding in repository_files(app)] == [
+        (
+            "CHANGELOG.md links to something that is not a file; the Supervisor "
+            "treats it as missing"
+        )
+    ]

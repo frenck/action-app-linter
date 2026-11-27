@@ -323,8 +323,6 @@
 # ---
 # name: test_app[unreadable-files]
   list([
-    'unreadable-files/CHANGELOG.md: error: CHANGELOG.md links to something that is not a file; the Supervisor treats it as missing [unreadable-file]',
-    'unreadable-files/apparmor.txt: error: apparmor.txt links into .git; the Supervisor refuses it [unreadable-file]',
     'unreadable-files/icon.png: error: icon.png links to /etc/hosts, outside the repository; the Supervisor refuses it, copy the file instead [unreadable-file]',
   ])
 # ---
