@@ -14,22 +14,23 @@ and, when known, a line.
 
 ## Project layout
 
-| Path                   | Purpose                                                  |
-| ---------------------- | -------------------------------------------------------- |
-| `src/applinter/`       | The package                                              |
-| `  cli.py`             | Command line, and the INPUT\_\* variables of the action  |
-| `  linter.py`          | Finds the files of an app, and runs everything on them   |
-| `  document.py`        | Reads YAML and JSON, keeping the line of every value     |
-| `  schema.py`          | JSON schema validation, turned into readable findings    |
-| `  schemas/`           | The JSON schemas, also usable in editors                 |
-| `  rules/`             | The checks a schema cannot express, one module per file  |
-| `  const.py`           | What the linter knows about the Supervisor, with sources |
-| `  findings.py`        | `Rule`, `Finding` and the registry of all rules          |
-| `  output.py`          | Everything printed: plain lines or GitHub annotations    |
-| `tests/fixtures/apps/` | Apps, valid and broken on purpose, one directory each    |
-| `tests/`               | pytest suite with syrupy snapshots                       |
-| `action.yaml`          | The GitHub Action; runs the published image              |
-| `Dockerfile`           | The container image, built from the wheel                |
+| Path                   | Purpose                                                                  |
+| ---------------------- | ------------------------------------------------------------------------ |
+| `src/applinter/`       | The package                                                              |
+| `  cli.py`             | Command line, and the INPUT\_\* variables of the action                  |
+| `  linter.py`          | Finds the files of an app, and runs everything on them                   |
+| `  document.py`        | Reads YAML and JSON, keeping the line of every value                     |
+| `  schema.py`          | JSON schema validation, turned into readable findings                    |
+| `  schemas/`           | The JSON schemas, also usable in editors                                 |
+| `  rules/`             | The checks a schema cannot express, one module per file                  |
+| `  const.py`           | What the linter knows about the Supervisor, with sources                 |
+| `  findings.py`        | `Rule`, `Finding` and the registry of all rules                          |
+| `  output.py`          | Everything printed: plain lines or GitHub annotations                    |
+| `tests/fixtures/apps/` | Apps, valid and broken on purpose, one directory each                    |
+| `tests/fixtures/real/` | Real apps, copied as they are; the official and Community Apps must pass |
+| `tests/`               | pytest suite with syrupy snapshots                                       |
+| `action.yaml`          | The GitHub Action; runs the published image                              |
+| `Dockerfile`           | The container image, built from the wheel                                |
 
 ## Commands
 
@@ -66,6 +67,9 @@ committing it.
 - Messages name the option the way people write it (`map.0.type`), say what
   is wrong, and what to do about it.
 - New checks need a fixture app that triggers them; snapshots cover the rest.
+- A check that gives an error on one of the official or Community Apps in
+  `tests/fixtures/real/` is either wrong, or a change those projects have to
+  hear about before a release. Do not just update the snapshot.
 - Every test carries a one-line docstring describing what it verifies.
   Coverage is enforced at 95%.
 - Comments explain the why, not the what. Clarity over cleverness, clear names,

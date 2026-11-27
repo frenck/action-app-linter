@@ -1,0 +1,57 @@
+# serializer version: 1
+# name: test_real_app[community-example]
+  list([
+  ])
+# ---
+# name: test_real_app[community-node-red]
+  list([
+    "community-node-red/config.yaml:27: warning: 'map' type 'addon_config' was renamed; use 'app_config', which needs Supervisor 2026.07 or newer [deprecated-map-type]",
+  ])
+# ---
+# name: test_real_app[community-vscode]
+  list([
+    "community-vscode/config.yaml:23: warning: 'map' type 'addons' was renamed; use 'local_apps', which needs Supervisor 2026.07 or newer [deprecated-map-type]",
+    "community-vscode/config.yaml:25: warning: 'map' type 'all_addon_configs' was renamed; use 'all_app_configs', which needs Supervisor 2026.07 or newer [deprecated-map-type]",
+  ])
+# ---
+# name: test_real_app[frigate]
+  list([
+    'frigate/config.yaml:15: error: \'startup\' is set to "application", which is the default; remove it [default-value]',
+    'frigate/config.yaml:16: error: \'boot\' is set to "auto", which is the default; remove it [default-value]',
+    "frigate/config.yaml:18: error: 'webui' is not used with Ingress; remove it [ingress-webui]",
+    "frigate/config.yaml:19: error: 'watchdog' is obsolete; use a HEALTHCHECK in the Dockerfile instead [deprecated-watchdog]",
+    "frigate/config.yaml:41: error: 'host_network' is set to false, which is the default; remove it [default-value]",
+    "frigate/config.yaml:57: error: 'full_access' is set to false, which is the default; remove it [default-value]",
+    "frigate/config.yaml:70: warning: 'map' type 'addon_config' was renamed; use 'app_config', which needs Supervisor 2026.07 or newer [deprecated-map-type]",
+  ])
+# ---
+# name: test_real_app[official-matter-server]
+  list([
+  ])
+# ---
+# name: test_real_app[official-mosquitto]
+  list([
+  ])
+# ---
+# name: test_real_app[official-samba]
+  list([
+  ])
+# ---
+# name: test_real_app[official-ssh]
+  list([
+  ])
+# ---
+# name: test_real_app[zigbee2mqtt-proxy]
+  list([
+    'zigbee2mqtt-proxy/config.json:11: error: \'boot\' is set to "auto", which is the default; remove it [default-value]',
+    "zigbee2mqtt-proxy/config.json:12: error: 'init' is set to true, which is the default; remove it [default-value]",
+    "zigbee2mqtt-proxy/config.json:13: error: 'true' is not a known option [unknown-key]",
+    "zigbee2mqtt-proxy/config.json:18: warning: 'map' type 'config' was replaced by 'homeassistant_config'. See: https://developers.home-assistant.io/blog/2023/11/06/public-addon-config [deprecated-map-config]",
+  ])
+# ---
+# name: test_real_app[zigbee2mqtt]
+  list([
+    'zigbee2mqtt/config.json:12: error: \'startup\' is set to "application", which is the default; remove it [default-value]',
+    'zigbee2mqtt/config.json:21: error: \'boot\' is set to "auto", which is the default; remove it [default-value]',
+  ])
+# ---
