@@ -1,0 +1,11 @@
+{
+	"name": "Example",
+	"version": "dev",
+	"slug": "example",
+	"description": "Example app",
+	"image": "homeassistant/{arch}-addon-example",
+	"arch": [
+		"aarch64",
+		"amd64"
+	]
+}

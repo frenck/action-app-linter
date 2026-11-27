@@ -1,0 +1,21 @@
+---
+configuration:
+  log_level:
+    name: Log level
+  removed_option:
+    name: Removed option
+  users:
+    name: Users
+    fields:
+      name:
+        name: Name
+      email:
+        name: E-mail
+  ssl:
+    name: SSL
+    fields:
+      certfile:
+        name: Certificate
+network:
+  8080/tcp: Web interface
+  1234/tcp: Gone

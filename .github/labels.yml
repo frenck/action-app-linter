@@ -6,7 +6,7 @@
   color: ee0701
   description:
     "Inconsistencies or issues which will cause a problem for users or
-    implementors."
+    implementers."
 - name: "documentation"
   color: 0052cc
   description: "Solely about the documentation of the project."
@@ -37,8 +37,7 @@
   description: "Issue is currently being resolved by a developer."
 - name: "stale"
   color: fef2c0
-  description:
-    "There has not been activity on this issue or PR for quite some time."
+  description: "There has not been activity on this issue or PR for quite some time."
 - name: "no-stale"
   color: fef2c0
   description: "This issue or PR is exempted from the stable bot."
@@ -55,12 +54,10 @@
 
 - name: "beginner-friendly"
   color: 0e8a16
-  description:
-    "Good first issue for people wanting to contribute to the project."
+  description: "Good first issue for people wanting to contribute to the project."
 - name: "help-wanted"
   color: 0e8a16
-  description:
-    "We need some extra helping hands or expertise in order to resolve this."
+  description: "We need some extra helping hands or expertise in order to resolve this."
 
 - name: "hacktoberfest"
   description: "Issues/PRs are participating in the Hacktoberfest."

@@ -1,0 +1,8 @@
+---
+name: Build
+version: dev
+slug: build
+description: A build file with every problem
+arch:
+  - aarch64
+  - amd64

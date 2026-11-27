@@ -9,13 +9,21 @@ branding:
 
 inputs:
   path:
-    description: Path to the app configuration (where config.json is)
+    description: Path to the app, the directory its config.yaml is in
     required: true
   community:
-    description: Enable Home Assistant Community Apps mode
+    description: Add the checks of the Home Assistant Community Apps project
     default: "false"
     required: false
+  ignore:
+    description: Rules to skip, separated by commas or newlines
+    default: ""
+    required: false
 
+# The linter runs from the image of this very release, so nothing gets built
+# when it runs; the release workflow refuses to publish when it does not
+# match the version being released. The image reads the inputs from the
+# INPUT_* environment variables GitHub sets for them.
 runs:
-  using: "docker"
-  image: "src/Dockerfile"
+  using: docker
+  image: docker://ghcr.io/frenck/action-app-linter:3.0.0

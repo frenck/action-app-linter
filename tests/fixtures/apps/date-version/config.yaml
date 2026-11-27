@@ -1,0 +1,7 @@
+---
+name: Date version
+version: 2025-01-01
+slug: date_version
+description: A version YAML reads as a date
+arch:
+  - amd64

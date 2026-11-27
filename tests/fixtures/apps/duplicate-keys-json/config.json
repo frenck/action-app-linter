@@ -1,0 +1,8 @@
+{
+  "name": "Duplicate",
+  "name": "Twice",
+  "version": "1.0.0",
+  "slug": "duplicate",
+  "description": "Sets keys twice",
+  "arch": ["amd64"]
+}

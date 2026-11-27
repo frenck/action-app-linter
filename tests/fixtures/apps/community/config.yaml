@@ -1,0 +1,7 @@
+---
+name: Community
+version: 1.2.3
+slug: community
+description: Not ready for the Community Apps workflows
+arch:
+  - amd64

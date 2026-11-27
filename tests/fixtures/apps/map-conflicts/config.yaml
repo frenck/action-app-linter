@@ -1,0 +1,13 @@
+---
+name: Map conflicts
+version: 1.0.0
+slug: map_conflicts
+description: Maps folders that rule each other out
+arch:
+  - amd64
+map:
+  - type: config
+  - type: homeassistant_config
+  - app_config:rw
+  - addons:ro
+  - local_apps

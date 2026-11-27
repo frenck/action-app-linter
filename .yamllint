@@ -1,4 +1,9 @@
 ---
+# Broken on purpose: the linter has to find what is wrong with them.
+ignore: |
+  tests/fixtures/
+  node_modules/
+
 rules:
   braces:
     level: error

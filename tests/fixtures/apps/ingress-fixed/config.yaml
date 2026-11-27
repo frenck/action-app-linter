@@ -1,0 +1,10 @@
+---
+name: Ingress fixed
+version: 1.0.0
+slug: ingress_fixed
+description: Ingress on a fixed port, with a web UI it does not use
+arch:
+  - amd64
+ingress: true
+ingress_port: 8080
+webui: http://[HOST]:[PORT:8080]/

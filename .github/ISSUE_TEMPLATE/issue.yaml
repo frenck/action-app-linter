@@ -1,0 +1,43 @@
+---
+name: Issue
+description: Report an issue with the App Linter, such as a wrong or missing finding.
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: A clear description of what the issue is, and what you expected instead.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: The version of the App Linter, as `--version` shows it, or the version of the action.
+      placeholder: 3.0.0
+    validations:
+      required: true
+  - type: input
+    id: repository
+    attributes:
+      label: App repository
+      description: The repository of the app it linted, if it is public.
+      placeholder: hassio-addons/app-example
+    validations:
+      required: false
+  - type: textarea
+    id: configuration
+    attributes:
+      label: Configuration
+      description: The part of the app configuration the issue is about.
+      render: yaml
+    validations:
+      required: false
+  - type: textarea
+    id: additional-information
+    attributes:
+      label: Additional information
+      description: The output of the linter helps a lot.
+      render: text
+    validations:
+      required: false

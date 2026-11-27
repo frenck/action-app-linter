@@ -1,0 +1,31 @@
+---
+name: Deprecated
+version: 1.0.0
+slug: deprecated
+description: Uses everything the Supervisor deprecated
+arch:
+  - aarch64
+  - amd64
+  - armhf
+  - armv7
+  - i386
+machine:
+  - raspberrypi3
+  - "!tinker"
+  - raspberrypi5-64
+advanced: true
+auto_uart: true
+codenotary: frenck@example.com
+watchdog: http://[HOST]:[PORT:8080]/health
+snapshot: cold
+snapshot_exclude:
+  - "*.log"
+startup: before
+tmpfs: size=10m
+devices:
+  - /dev/ttyAMA0:/dev/ttyAMA0:rwm
+  - /dev/ttyUSB0
+map:
+  - config:rw
+  - addons
+  - all_addon_configs

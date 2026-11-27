@@ -1,0 +1,40 @@
+---
+name: Invalid
+version: 1.1
+slug: Bad Slug!
+description: Values the Supervisor does not accept
+url: not a url
+image: ghcr.io/Example/App:latest
+arch:
+  - amd64
+  - sparc
+apparmor: my_profile
+timeout: 5
+webui: http://localhost:8080
+machine:
+  - commodore-64
+privileged:
+  - NOPE
+map:
+  - nonsense
+  - type: share
+    readonly: true
+  - read_only: true
+ports:
+  banana: 80
+  8080/tcp: 99999
+environment:
+  DEBUG: 1
+schema:
+  name: string
+  count: int(1,
+  choice: []
+  nested:
+    - str
+    - int
+options: []
+ulimits:
+  nofile:
+    soft: 1024
+unknown_option: true
+homeassistant: latest

@@ -1,0 +1,9 @@
+---
+name: Two documents
+version: 1.0.0
+slug: two_documents
+description: Two YAML documents in one file
+arch:
+  - amd64
+---
+name: Second document

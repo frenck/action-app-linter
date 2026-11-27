@@ -1,0 +1,14 @@
+---
+name: Merge keys
+version: 1.0.0
+slug: merge_keys
+description: Options shared with YAML anchors and merge keys
+arch:
+  - amd64
+options:
+  <<: &defaults
+    log_level: info
+    leftover: true
+  log_level: debug
+schema:
+  log_level: list(info|debug)

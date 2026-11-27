@@ -1,0 +1,8 @@
+---
+name: Unused
+version: dev
+slug: unused
+description: A base image for an architecture the app does not support
+image: ghcr.io/example/{arch}-unused
+arch:
+  - amd64

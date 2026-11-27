@@ -1,0 +1,155 @@
+[build-system]
+# Pinned to a major range so a future Hatchling release cannot silently change
+# how the package is built on a publish day.
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "app-linter"
+# Stays 0.0.0 in development; the release workflow stamps the real version
+# from the Git tag with `uv version` at publish time.
+version = "0.0.0"
+description = "Linter for Home Assistant app configuration"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE.md"]
+requires-python = ">=3.12"
+authors = [{ name = "Franck Nijhof", email = "opensource@frenck.dev" }]
+keywords = [
+  "apps",
+  "frenck",
+  "home assistant",
+  "home-assistant",
+  "linter",
+]
+classifiers = [
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Topic :: Software Development :: Quality Assurance",
+  "Topic :: Utilities",
+  "Typing :: Typed",
+]
+# Ranges, not pins: people install this with pip next to other things. The
+# exact versions CI and the container use live in uv.lock.
+dependencies = [
+  "jsonschema>=4.23.0,<5",
+  "PyYAML>=6.0.2,<7",
+]
+
+[project.urls]
+Homepage = "https://github.com/frenck/action-app-linter"
+Source = "https://github.com/frenck/action-app-linter"
+Issues = "https://github.com/frenck/action-app-linter/issues"
+
+[project.scripts]
+app-linter = "applinter.cli:main"
+
+[dependency-groups]
+# Pinned exactly for reproducible local and CI runs. CI installs this group
+# with `uv sync`, so the versions live here and not in the workflows.
+dev = [
+  "actionlint-py==1.7.12.25",
+  "codespell==2.4.3",
+  "covdefaults==2.3.0",
+  "coverage[toml]==7.17.5",
+  "pre-commit-hooks==6.0.0",
+  "prek==0.5.12",
+  "pylint==4.1.4",
+  "pytest==9.2.0",
+  "pytest-cov==7.1.0",
+  "ruff==0.17.6",
+  "shellcheck-py==0.11.0.1",
+  "syrupy==7.0.3",
+  "ty==0.0.112",
+  "types-jsonschema==4.26.0.20261006",
+  "types-PyYAML==6.0.12.20261122",
+  "yamllint==1.38.0",
+  "zizmor==1.33.1",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/applinter"]
+
+# The sdist is explicit so its contents are auditable, rather than relying on
+# Hatchling's default file selection.
+[tool.hatch.build.targets.sdist]
+include = [
+  "src/applinter",
+  "pyproject.toml",
+  "README.md",
+  "LICENSE.md",
+]
+
+[tool.pytest.ini_options]
+addopts = "--cov --strict-markers --strict-config"
+xfail_strict = true
+
+[tool.coverage.run]
+plugins = ["covdefaults"]
+# source_pkgs, not source: coverage cannot resolve a bare package name in a
+# src layout and silently measures nothing.
+source_pkgs = ["applinter"]
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 95
+
+[tool.codespell]
+ignore-words-list = "hass"
+
+[tool.ty.environment]
+python-version = "3.12"
+
+[tool.pylint.MASTER]
+ignore = ["tests"]
+
+[tool.pylint.BASIC]
+good-names = ["_", "ex", "fp", "i", "id", "j", "k", "on", "Run", "T"]
+
+[tool.pylint."MESSAGES CONTROL"]
+disable = [
+  "too-few-public-methods",
+  "duplicate-code",
+  "format",
+  "unsubscriptable-object",
+]
+
+[tool.pylint.SIMILARITIES]
+ignore-imports = true
+
+[tool.pylint.FORMAT]
+max-line-length = 88
+
+[tool.pylint.DESIGN]
+# Turning a problem into its message is one return per kind of problem.
+max-returns = 10
+
+[tool.ruff]
+target-version = "py312"
+line-length = 88
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+  "ANN401",  # Parsed YAML and JSON is Any by nature.
+
+  # Conflicts with the formatter, which handles both already.
+  "COM812",  # missing-trailing-comma
+  "ISC001",  # single-line-implicit-string-concatenation
+
+  "CPY001",  # No copyright headers, the LICENSE file covers it.
+]
+
+[tool.ruff.lint.pylint]
+# Turning a problem into its message is one return per kind of problem.
+max-returns = 10
+
+[tool.ruff.lint.isort]
+known-first-party = ["applinter"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "pep257"

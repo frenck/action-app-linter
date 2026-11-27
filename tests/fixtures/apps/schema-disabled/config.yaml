@@ -1,0 +1,10 @@
+---
+name: Schema disabled
+version: 1.0.0
+slug: schema_disabled
+description: Options without a schema to check them against
+arch:
+  - amd64
+options:
+  anything: goes
+schema: false

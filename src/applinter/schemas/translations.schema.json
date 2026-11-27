@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/frenck/action-app-linter/main/src/applinter/schemas/translations.schema.json",
+  "title": "Home Assistant app translations",
+  "description": "A translations/<language>.yaml of a Home Assistant app, as the Supervisor reads it.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "configuration": {
+      "description": "Names and descriptions of the options, by option.",
+      "type": "object",
+      "additionalProperties": { "$ref": "#/definitions/field" }
+    },
+    "network": {
+      "description": "A description for each of the ports, by port.",
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    }
+  },
+  "definitions": {
+    "field": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string" },
+        "description": { "type": ["string", "null"] },
+        "fields": {
+          "description": "Names and descriptions of nested options.",
+          "type": "object",
+          "additionalProperties": { "$ref": "#/definitions/field" }
+        }
+      }
+    }
+  }
+}

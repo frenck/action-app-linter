@@ -1,0 +1,9 @@
+---
+name: Cold backup
+version: 1.0.0
+slug: cold_backup
+description: A backup command that never runs
+arch:
+  - amd64
+backup: cold
+backup_post: /usr/bin/finish

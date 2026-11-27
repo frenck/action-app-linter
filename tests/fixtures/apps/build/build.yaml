@@ -1,0 +1,11 @@
+---
+build_from:
+  amd64: ghcr.io/hassio-addons/base:21.1.0
+  armv7: ghcr.io/hassio-addons/base:21.1.0
+  i386: not an image
+args:
+  NUMBER: 42
+squash: true
+codenotary:
+  signer: frenck@example.com
+labels: {}

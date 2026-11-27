@@ -1,0 +1,6 @@
+name: Minimal
+version: "1.0.0"
+slug: minimal
+description: The least an app needs
+arch:
+  - amd64

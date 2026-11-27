@@ -1,0 +1,372 @@
+# serializer version: 1
+# name: test_app[arch-unsupported]
+  list([
+    "arch-unsupported/config.yaml:6: error: 'arch' has no architecture Home Assistant supports; add 'aarch64' or 'amd64' [arch-unsupported]",
+    "arch-unsupported/config.yaml:7: warning: Architecture 'armv7' is no longer supported since Home Assistant 2025.12; remove it from 'arch' [deprecated-arch]",
+    "arch-unsupported/config.yaml:8: warning: Architecture 'i386' is no longer supported since Home Assistant 2025.12; remove it from 'arch' [deprecated-arch]",
+  ])
+# ---
+# name: test_app[broken-json]
+  list([
+    "broken-json/config.json:3: error: Not valid JSON: Expecting ':' delimiter [invalid-file]",
+  ])
+# ---
+# name: test_app[broken-yaml]
+  list([
+    "broken-yaml/config.yaml:2: error: Not valid YAML: expected ',' or ']', but got ':' [invalid-file]",
+  ])
+# ---
+# name: test_app[build-single-image]
+  list([
+    'build-single-image/build.yaml: warning: The Supervisor deprecated build.yaml; move the base image, build arguments and labels into the Dockerfile [build-deprecated]',
+  ])
+# ---
+# name: test_app[build-unused]
+  list([
+    "build-unused/build.yaml:3: warning: 'build_from' has a base image for 'aarch64', which is not in 'arch' of the configuration [build-arch-unused]",
+  ])
+# ---
+# name: test_app[build]
+  list([
+    'build/build.yaml: warning: The Supervisor deprecated build.yaml; move the base image, build arguments and labels into the Dockerfile [build-deprecated]',
+    "build/build.yaml:2: error: 'build_from' has no base image for 'aarch64', so the app cannot be built for it [build-arch-missing]",
+    "build/build.yaml:4: warning: Architecture 'armv7' is no longer supported since Home Assistant 2025.12; remove it from 'build_from' [deprecated-arch]",
+    "build/build.yaml:5: warning: Architecture 'i386' is no longer supported since Home Assistant 2025.12; remove it from 'build_from' [deprecated-arch]",
+    'build/build.yaml:5: error: \'build_from.i386\' is "not an image", expected an image with an organization and an optional tag, such as ghcr.io/home-assistant/base:latest. Official Docker Hub images are in the library organization, such as library/debian [schema]',
+    "build/build.yaml:7: error: 'args.NUMBER' must be of type string, not integer; put it in quotes [schema]",
+    "build/build.yaml:8: error: 'squash' is not supported by Docker BuildKit, which the Supervisor builds with; remove it [deprecated-squash]",
+    "build/build.yaml:9: error: 'codenotary' is no longer used; remove it [deprecated-codenotary]",
+    "build/build.yaml:11: error: 'labels' is set to {}, which is the default; remove it [default-value]",
+  ])
+# ---
+# name: test_app[cold-backup]
+  list([
+    "cold-backup/config.yaml:9: error: 'backup_post' does not run for cold backups; remove it [cold-backup-hooks]",
+  ])
+# ---
+# name: test_app[community]
+  list([
+  ])
+# ---
+# name: test_app[control-character]
+  list([
+    'control-character/config.yaml:2: error: Not valid YAML: the character #x0007 is not allowed [invalid-file]',
+  ])
+# ---
+# name: test_app[date-version]
+  list([
+    "date-version/config.yaml:3: error: 'version' must be of type string, not date; put it in quotes [schema]",
+  ])
+# ---
+# name: test_app[defaults]
+  list([
+    "defaults/config.yaml:8: error: 'apparmor' is set to true, which is the default; remove it [default-value]",
+    "defaults/config.yaml:9: error: 'audio' is set to false, which is the default; remove it [default-value]",
+    'defaults/config.yaml:10: error: \'boot\' is set to "auto", which is the default; remove it [default-value]',
+    'defaults/config.yaml:11: error: \'backup\' is set to "hot", which is the default; remove it [default-value]',
+    'defaults/config.yaml:12: error: \'hassio_role\' is set to "default", which is the default; remove it [default-value]',
+    "defaults/config.yaml:13: error: 'ingress_port' is set to 8099, which is the default; remove it [default-value]",
+    "defaults/config.yaml:14: error: 'init' is set to true, which is the default; remove it [default-value]",
+    'defaults/config.yaml:15: error: \'log_format\' is set to "plain", which is the default; remove it [default-value]',
+    "defaults/config.yaml:16: error: 'options' is set to {}, which is the default; remove it [default-value]",
+    "defaults/config.yaml:17: error: 'panel_admin' is set to true, which is the default; remove it [default-value]",
+    'defaults/config.yaml:18: error: \'panel_icon\' is set to "mdi:puzzle", which is the default; remove it [default-value]',
+    "defaults/config.yaml:19: error: 'schema' is set to {}, which is the default; remove it [default-value]",
+    'defaults/config.yaml:20: error: \'stage\' is set to "stable", which is the default; remove it [default-value]',
+    'defaults/config.yaml:21: error: \'startup\' is set to "application", which is the default; remove it [default-value]',
+    "defaults/config.yaml:22: error: 'timeout' is set to 10, which is the default; remove it [default-value]",
+    "defaults/config.yaml:23: error: 'tmpfs' is set to false, which is the default; remove it [default-value]",
+    "defaults/config.yaml:24: error: 'ulimits' is set to {}, which is the default; remove it [default-value]",
+  ])
+# ---
+# name: test_app[deprecated]
+  list([
+    "deprecated/config.yaml:9: warning: Architecture 'armhf' is no longer supported since Home Assistant 2025.12; remove it from 'arch' [deprecated-arch]",
+    "deprecated/config.yaml:10: warning: Architecture 'armv7' is no longer supported since Home Assistant 2025.12; remove it from 'arch' [deprecated-arch]",
+    "deprecated/config.yaml:11: warning: Architecture 'i386' is no longer supported since Home Assistant 2025.12; remove it from 'arch' [deprecated-arch]",
+    "deprecated/config.yaml:13: warning: Machine 'raspberrypi3' is no longer supported by Home Assistant; remove it from 'machine' [deprecated-machine]",
+    "deprecated/config.yaml:14: warning: Machine 'tinker' is no longer supported by Home Assistant; remove it from 'machine' [deprecated-machine]",
+    "deprecated/config.yaml:16: warning: 'advanced' is ignored by the Supervisor since 2026.03; remove it [deprecated-advanced]",
+    "deprecated/config.yaml:17: error: 'auto_uart' is deprecated; use 'uart' [deprecated-auto-uart]",
+    "deprecated/config.yaml:18: error: 'codenotary' is no longer used; remove it [deprecated-codenotary]",
+    "deprecated/config.yaml:19: error: 'watchdog' is obsolete; use a HEALTHCHECK in the Dockerfile instead [deprecated-watchdog]",
+    "deprecated/config.yaml:20: error: 'snapshot' was renamed; use 'backup' [deprecated-snapshot]",
+    "deprecated/config.yaml:21: error: 'snapshot_exclude' was renamed; use 'backup_exclude' [deprecated-snapshot]",
+    "deprecated/config.yaml:23: error: 'startup' value 'before' is deprecated; use 'services' [deprecated-startup]",
+    "deprecated/config.yaml:24: error: 'tmpfs' uses a deprecated format; it is a boolean now [deprecated-tmpfs]",
+    "deprecated/config.yaml:26: error: Device '/dev/ttyAMA0:/dev/ttyAMA0:rwm' uses a deprecated format; list the path only, such as '/dev/ttyAMA0' [deprecated-devices]",
+    "deprecated/config.yaml:29: warning: 'map' type 'config' was replaced by 'homeassistant_config'. See: https://developers.home-assistant.io/blog/2023/11/06/public-addon-config [deprecated-map-config]",
+    "deprecated/config.yaml:30: warning: 'map' type 'addons' was renamed; use 'local_apps', which needs Supervisor 2026.07 or newer [deprecated-map-type]",
+    "deprecated/config.yaml:31: warning: 'map' type 'all_addon_configs' was renamed; use 'all_app_configs', which needs Supervisor 2026.07 or newer [deprecated-map-type]",
+  ])
+# ---
+# name: test_app[duplicate-keys-json]
+  list([
+    "duplicate-keys-json/config.json:3: error: 'name' is set more than once; only the last one counts [duplicate-key]",
+  ])
+# ---
+# name: test_app[duplicate-keys]
+  list([
+    "duplicate-keys/config.yaml:11: error: 'ingress' is set to false, which is the default; remove it [default-value]",
+    "duplicate-keys/config.yaml:11: error: 'ingress' is set more than once; only the last one counts [duplicate-key]",
+  ])
+# ---
+# name: test_app[empty-file]
+  list([
+    'empty-file/config.yaml: error: The file is empty [invalid-file]',
+  ])
+# ---
+# name: test_app[empty-name]
+  list([
+    "empty-name/config.yaml:2: error: 'name': '' should be non-empty [schema]",
+  ])
+# ---
+# name: test_app[hardware]
+  list([
+    "hardware/config.yaml:8: warning: 'full_access' gives the app all hardware; consider options such as 'devices' instead [full-access]",
+    "hardware/config.yaml:9: error: 'usb' is not needed with 'full_access'; remove it [full-access-redundant]",
+    "hardware/config.yaml:10: error: 'uart' is not needed with 'full_access'; remove it [full-access-redundant]",
+    "hardware/config.yaml:11: error: 'gpio' is set to false, which is the default; remove it [default-value]",
+    "hardware/config.yaml:12: error: 'devices' is not needed with 'full_access'; remove it [full-access-redundant]",
+  ])
+# ---
+# name: test_app[image-empty]
+  list([
+    "image-empty/config.yaml:8: error: 'image' is empty [invalid-image]",
+  ])
+# ---
+# name: test_app[image-invalid-part]
+  list([
+    "image-invalid-part/config.yaml:8: error: 'image' has an invalid part 'Example'; use lowercase letters, digits and separators such as - and . [invalid-image]",
+  ])
+# ---
+# name: test_app[image-invalid-registry]
+  list([
+    "image-invalid-registry/config.yaml:8: error: 'image' has an invalid registry 'bad_registry.io' [invalid-image]",
+  ])
+# ---
+# name: test_app[image-no-name]
+  list([
+    "image-no-name/config.yaml:8: error: 'image' has no name after the registry [invalid-image]",
+  ])
+# ---
+# name: test_app[image-uppercase-registry]
+  list([
+    "image-uppercase-registry/config.yaml:8: error: 'image' must have a lowercase registry, not 'GHCR.io' [invalid-image]",
+  ])
+# ---
+# name: test_app[impossible-date]
+  list([
+    'impossible-date/config.yaml:10: error: Not valid YAML: 2025-02-30 is not a date that exists; put it in quotes if it is not meant as a date [invalid-file]',
+  ])
+# ---
+# name: test_app[ingress-fixed]
+  list([
+    "ingress-fixed/config.yaml:10: error: 'webui' is not used with Ingress; remove it [ingress-webui]",
+  ])
+# ---
+# name: test_app[ingress]
+  list([
+    "ingress/config.yaml:9: error: 'ingress_port' is 0, but the app does not run on the host network; a fixed port works fine there [ingress-port-random]",
+    "ingress/config.yaml:10: error: 'webui' is not used with Ingress; remove it [ingress-webui]",
+    'ingress/config.yaml:13: error: Port 62001 is in the range random Ingress ports come from (62000-65500); the Supervisor refuses this app [ingress-port-reserved]',
+    'ingress/config.yaml:14: error: Port 65500 is in the range random Ingress ports come from (62000-65500); the Supervisor refuses this app [ingress-port-reserved]',
+  ])
+# ---
+# name: test_app[invalid-kinds]
+  list([
+    "invalid-kinds/config.yaml:2: error: 'name' must be of type string, not null [schema]",
+    "invalid-kinds/config.yaml:4: error: 'slug' must be of type string, not integer; put it in quotes [schema]",
+    "invalid-kinds/config.yaml:5: error: 'description' must be of type string, not boolean [schema]",
+    "invalid-kinds/config.yaml:6: error: 'url' must be of type string, not integer; put it in quotes [schema]",
+    "invalid-kinds/config.yaml:7: error: 'arch' must be of type array, not string [schema]",
+    'invalid-kinds/config.yaml:8: error: \'startup\' is "bogus", expected one of: "application", "initialize", "once", "services", "system" [schema]',
+    "invalid-kinds/config.yaml:9: error: 'tmpfs' must be boolean or string, not integer [schema]",
+    "invalid-kinds/config.yaml:10: error: 'schema' must be false or object, not integer [schema]",
+    "invalid-kinds/config.yaml:12: error: 'map.0' must be object or string, not integer [schema]",
+    "invalid-kinds/config.yaml:13: error: 'panel_title' must be of type string, not object [schema]",
+    "invalid-kinds/config.yaml:15: error: 'apparmor' must be of type boolean, not string; remove the quotes [schema]",
+  ])
+# ---
+# name: test_app[invalid-values]
+  list([
+    "invalid-values/config.yaml:3: error: 'version' must be of type string, not number; put it in quotes [schema]",
+    'invalid-values/config.yaml:4: error: \'slug\' is "Bad Slug!", expected the unique identifier of the app, in letters, digits, -, _ and . only [schema]',
+    "invalid-values/config.yaml:6: error: 'url' is not a valid URL: 'not a url' [invalid-url]",
+    "invalid-values/config.yaml:7: error: 'image' must not have a tag; the Supervisor adds the version itself [invalid-image]",
+    'invalid-values/config.yaml:10: error: \'arch.1\' is "sparc", expected one of: "aarch64", "amd64", "armhf", "armv7", "i386" [schema]',
+    "invalid-values/config.yaml:11: error: 'apparmor' must be of type boolean, not string [schema]",
+    "invalid-values/config.yaml:12: error: 'timeout': 5 is less than the minimum of 10 [schema]",
+    'invalid-values/config.yaml:13: error: \'webui\' is "http://localhost:8080", expected the URL of the web interface, such as http://[HOST]:[PORT:8080]/ [schema]',
+    'invalid-values/config.yaml:15: error: \'machine.0\' is "commodore-64", expected one of: "generic-aarch64", "generic-x86-64", "green", "intel-nuc", "khadas-vim3", "odroid-c2", "odroid-c4", "odroid-m1", "odroid-n2", "odroid-xu", "qemuarm", "qemuarm-64", "qemux86", "qemux86-64", "raspberrypi", "raspberrypi2", "raspberrypi3", "raspberrypi3-64", "raspberrypi4", "raspberrypi4-64", "raspberrypi5-64", "tinker", "yellow" [schema]',
+    'invalid-values/config.yaml:17: error: \'privileged.0\' is "NOPE", expected one of: "AUDIT_WRITE", "BPF", "CHECKPOINT_RESTORE", "DAC_READ_SEARCH", "IPC_LOCK", "MKNOD", "NET_ADMIN", "NET_RAW", "PERFMON", "SETFCAP", "SYS_ADMIN", "SYS_MODULE", "SYS_NICE", "SYS_PTRACE", "SYS_RAWIO", "SYS_RESOURCE", "SYS_TIME" [schema]',
+    'invalid-values/config.yaml:19: error: \'map.0\' is "nonsense", expected a folder type, optionally followed by :rw or :ro, such as share:rw [schema]',
+    "invalid-values/config.yaml:21: error: 'map.1.readonly' is not a known option [unknown-key]",
+    "invalid-values/config.yaml:22: error: 'map.2' needs 'type' [schema]",
+    "invalid-values/config.yaml:24: error: Key 'ports.banana' is not valid, expected a container port with an optional protocol, such as 8080/tcp [schema]",
+    "invalid-values/config.yaml:25: error: 'ports.8080/tcp': 99999 is greater than the maximum of 65535 [schema]",
+    "invalid-values/config.yaml:27: error: 'environment.DEBUG' must be of type string, not integer; put it in quotes [schema]",
+    'invalid-values/config.yaml:29: error: \'schema.name\' is "string", expected an option type, such as str, int(1,10), list(a|b|c) or match(^\\d+$), with a ? at the end when it is optional [schema]',
+    'invalid-values/config.yaml:30: error: \'schema.count\' is "int(1,", expected an option type, such as str, int(1,10), list(a|b|c) or match(^\\d+$), with a ? at the end when it is optional [schema]',
+    "invalid-values/config.yaml:31: error: 'schema.choice': [] should be non-empty [schema]",
+    "invalid-values/config.yaml:32: error: 'schema.nested': ['str', 'int'] is too long [schema]",
+    "invalid-values/config.yaml:35: error: 'options' must be of type object, not array [schema]",
+    "invalid-values/config.yaml:37: error: 'ulimits.nofile' needs 'hard' [schema]",
+    "invalid-values/config.yaml:39: error: 'unknown_option' is not a known option [unknown-key]",
+    'invalid-values/config.yaml:40: error: \'homeassistant\' is "latest", expected a Home Assistant version, such as 2024.6.0 or 2024.6.0b1 [schema]',
+  ])
+# ---
+# name: test_app[json-without-lines]
+  list([
+    "json-without-lines/config.json: error: 'timeout': 5 is less than the minimum of 10 [schema]",
+  ])
+# ---
+# name: test_app[legacy-nested-options]
+  list([
+    "legacy-nested-options/config.yaml:12: warning: Option 'ratio' is not a whole number or text, so a legacy app does not get it as an environment variable [legacy-nested-option]",
+    "legacy-nested-options/config.yaml:13: warning: Option 'users' is not a whole number or text, so a legacy app does not get it as an environment variable [legacy-nested-option]",
+  ])
+# ---
+# name: test_app[list-root]
+  list([
+    'list-root/config.yaml:1: error: The file must hold a mapping of keys and values, not a list [invalid-file]',
+  ])
+# ---
+# name: test_app[machine-deprecated-only]
+  list([
+    "machine-deprecated-only/config.yaml:8: error: 'machine' only lists machines Home Assistant no longer supports [machine-unavailable]",
+    "machine-deprecated-only/config.yaml:9: warning: Machine 'raspberrypi3' is no longer supported by Home Assistant; remove it from 'machine' [deprecated-machine]",
+  ])
+# ---
+# name: test_app[machine-excludes-only]
+  list([
+    "machine-excludes-only/config.yaml:8: error: 'machine' only excludes machines, but the Supervisor only installs apps on machines in the list, so this app installs nowhere; list the machines it supports, or remove 'machine' [machine-unavailable]",
+  ])
+# ---
+# name: test_app[map-conflicts]
+  list([
+    "map-conflicts/config.yaml:9: error: 'map' has 'config' together with 'app_config', 'homeassistant_config', which the Supervisor ignores when 'config' is mapped [map-conflict]",
+    "map-conflicts/config.yaml:12: error: 'map' has both 'addons' and 'local_apps'; the Supervisor ignores 'addons', remove it [map-conflict]",
+  ])
+# ---
+# name: test_app[map-not-a-list]
+  list([
+    "map-not-a-list/config.yaml:8: error: 'map' must be of type array, not boolean [schema]",
+  ])
+# ---
+# name: test_app[minimal]
+  list([
+  ])
+# ---
+# name: test_app[multiple-configs]
+  list([
+    'multiple-configs/config.json: error: Found config.yaml and config.json; keep only one, the linter checked config.yaml [multiple-files]',
+  ])
+# ---
+# name: test_app[multiple-documents]
+  list([
+    'multiple-documents/config.yaml:8: error: Not valid YAML: expected a single document in the stream, but found another document [invalid-file]',
+  ])
+# ---
+# name: test_app[nested-aliases]
+  list([
+  ])
+# ---
+# name: test_app[no-config]
+  list([
+    'no-config: error: There is no config.yaml, config.yml or config.json [app-not-found]',
+  ])
+# ---
+# name: test_app[not-utf8]
+  list([
+    "not-utf8/config.yaml: error: Cannot read the file: 'utf-8' codec can't decode byte 0xe9 in position 13: invalid continuation byte [invalid-file]",
+  ])
+# ---
+# name: test_app[options]
+  list([
+    "options/config.yaml:12: warning: 'ports_description' describes port '9090/tcp', which is not in 'ports' [port-description-unknown]",
+    "options/config.yaml:15: error: Option 'leftover' is not in 'schema', so the Supervisor drops it [option-not-in-schema]",
+    "options/translations/English.yaml: warning: 'English.yaml' is not named after a language code, such as en.yaml or pt-BR.yaml, so it is never used [translation-filename]",
+    "options/translations/en.yaml:5: warning: Option 'removed_option' is not in 'schema' of the configuration [translation-unknown-option]",
+    "options/translations/en.yaml:12: warning: Option 'users.email' is not in 'schema' of the configuration [translation-unknown-option]",
+    "options/translations/en.yaml:16: warning: Option 'ssl' has 'fields', but no nested options in 'schema' [translation-unknown-option]",
+    "options/translations/en.yaml:21: warning: Port '1234/tcp' is not in 'ports' of the configuration [translation-unknown-port]",
+  ])
+# ---
+# name: test_app[schema-disabled]
+  list([
+  ])
+# ---
+# name: test_app[self-referencing-anchor]
+  list([
+    'self-referencing-anchor/config.yaml:9: error: Not valid YAML: an anchor contains an alias to itself [invalid-file]',
+  ])
+# ---
+# name: test_app[slug-not-an-image]
+  list([
+    "slug-not-an-image/config.yaml:4: error: 'slug' 'odd..slug-' does not make a valid image name, so the Supervisor cannot build the app [invalid-slug]",
+  ])
+# ---
+# name: test_app[slug-too-long]
+  list([
+    "slug-too-long/config.yaml:4: error: 'slug' is 55 characters long; the Supervisor does not load apps from a repository with a slug longer than 51 [invalid-slug]",
+  ])
+# ---
+# name: test_app[translations-invalid]
+  list([
+    "translations-invalid/translations/de.yaml:2: error: Not valid YAML: expected ',' or ']', but got '<stream end>' [invalid-file]",
+    "translations-invalid/translations/en.yaml:3: error: 'configuration.log_level' needs 'name' [schema]",
+    "translations-invalid/translations/en.yaml:3: warning: Option 'log_level' is not in 'schema' of the configuration [translation-unknown-option]",
+    "translations-invalid/translations/en.yaml:5: error: 'network' must be of type object, not string [schema]",
+    "translations-invalid/translations/en.yaml:6: error: 'services' is not a known option [unknown-key]",
+  ])
+# ---
+# name: test_app[unreadable-files]
+  list([
+    'unreadable-files/icon.png: error: icon.png links to /etc/hosts, outside the repository; the Supervisor refuses it, copy the file instead [unreadable-file]',
+  ])
+# ---
+# name: test_app[valid-json]
+  list([
+  ])
+# ---
+# name: test_app[valid]
+  list([
+  ])
+# ---
+# name: test_app[yaml-merge-keys]
+  list([
+    "yaml-merge-keys/config.yaml:8: error: Option 'leftover' is not in 'schema', so the Supervisor drops it [option-not-in-schema]",
+  ])
+# ---
+# name: test_app_community[build-single-image]
+  list([
+    "build-single-image/build.yaml:2: error: 'build_from' must have a base image per architecture; the Community Apps workflows read it that way [community-build-file]",
+  ])
+# ---
+# name: test_app_community[build]
+  list([
+    "build/build.yaml:2: error: 'build_from' has no base image for 'aarch64', so the app cannot be built for it [build-arch-missing]",
+    "build/build.yaml:4: warning: Architecture 'armv7' is no longer supported since Home Assistant 2025.12; remove it from 'build_from' [deprecated-arch]",
+    "build/build.yaml:5: warning: Architecture 'i386' is no longer supported since Home Assistant 2025.12; remove it from 'build_from' [deprecated-arch]",
+    'build/build.yaml:5: error: \'build_from.i386\' is "not an image", expected an image with an organization and an optional tag, such as ghcr.io/home-assistant/base:latest. Official Docker Hub images are in the library organization, such as library/debian [schema]',
+    "build/build.yaml:7: error: 'args.NUMBER' must be of type string, not integer; put it in quotes [schema]",
+    "build/build.yaml:8: error: 'squash' is not supported by Docker BuildKit, which the Supervisor builds with; remove it [deprecated-squash]",
+    "build/build.yaml:9: error: 'codenotary' is no longer used; remove it [deprecated-codenotary]",
+    "build/build.yaml:11: error: 'labels' is set to {}, which is the default; remove it [default-value]",
+  ])
+# ---
+# name: test_app_community[community]
+  list([
+    'community/build.yaml: error: The build.yaml is missing; the Community Apps workflows read the base image for each architecture from it [community-build-file]',
+    "community/config.yaml:3: error: 'version' is '1.2.3'; community apps use 'dev' [community-version]",
+  ])
+# ---
+# name: test_app_community[valid-json]
+  list([
+  ])
+# ---
+# name: test_app_community[valid]
+  list([
+  ])
+# ---
