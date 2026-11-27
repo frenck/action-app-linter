@@ -1,0 +1,15 @@
+---
+name: null
+version: "1.0.0"
+slug: 42
+description: true
+url: 42
+arch: amd64
+startup: bogus
+tmpfs: 5
+schema: 3
+map:
+  - 42
+panel_title:
+  nested: true
+apparmor: "true"

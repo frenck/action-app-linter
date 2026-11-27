@@ -1,0 +1,11 @@
+---
+name: Duplicate
+version: 1.0.0
+slug: duplicate
+description: Sets keys twice
+arch:
+  - amd64
+ports:
+  8080/tcp: 8080
+ingress: true
+ingress: false

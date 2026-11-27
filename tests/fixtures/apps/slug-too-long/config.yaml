@@ -1,0 +1,7 @@
+---
+name: Long slug
+version: 1.0.0
+slug: this_slug_is_far_too_long_for_the_supervisor_to_load_it
+description: A slug longer than the Supervisor allows
+arch:
+  - amd64

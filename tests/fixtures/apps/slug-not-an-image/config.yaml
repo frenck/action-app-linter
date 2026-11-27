@@ -1,0 +1,7 @@
+---
+name: Odd slug
+version: 1.0.0
+slug: odd..slug-
+description: A slug that does not make an image name
+arch:
+  - amd64

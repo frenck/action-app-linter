@@ -1,0 +1,9 @@
+---
+configuration:
+  log_level:
+    name: Log level
+  removed_option:
+    name: Removed option
+network:
+  8080/tcp: Web interface
+  1234/tcp: Gone

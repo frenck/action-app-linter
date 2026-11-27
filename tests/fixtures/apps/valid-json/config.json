@@ -1,0 +1,11 @@
+{
+	"name": "Example",
+	"version": "dev",
+	"slug": "example",
+	"description": "Example app",
+	"image": "ghcr.io/example/{arch}-example",
+	"arch": [
+		"aarch64",
+		"amd64"
+	]
+}

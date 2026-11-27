@@ -10,6 +10,11 @@ on:
       - .github/labels.yml
   workflow_dispatch:
 
+# Serialize label syncs without cancelling an in-flight run.
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
 permissions:
   contents: read
 
@@ -17,12 +22,13 @@ jobs:
   labels:
     name: ♻️ Sync labels
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
-      contents: read
-      issues: write
+      contents: read # Check out the repository
+      issues: write # Create and update issue labels
     steps:
       - name: ⤵️ Check out code from GitHub
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - name: 🚀 Run Label Syncer

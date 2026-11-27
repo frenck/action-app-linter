@@ -1,0 +1,550 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/frenck/action-app-linter/main/src/applinter/schemas/config.schema.json",
+  "title": "Home Assistant app configuration",
+  "description": "The config.yaml of a Home Assistant app, as the Supervisor reads it.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["arch", "description", "name", "slug", "version"],
+  "properties": {
+    "advanced": {
+      "description": "Ignored by the Supervisor since 2026.03.",
+      "deprecated": true,
+      "type": "boolean"
+    },
+    "apparmor": {
+      "description": "Enable or disable AppArmor. A custom profile goes in apparmor.txt.",
+      "default": true,
+      "type": "boolean"
+    },
+    "arch": {
+      "description": "The architectures the app runs on.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "enum": ["aarch64", "amd64", "armhf", "armv7", "i386"],
+        "type": "string"
+      }
+    },
+    "audio": {
+      "description": "Give the app access to the PulseAudio server.",
+      "default": false,
+      "type": "boolean"
+    },
+    "auth_api": {
+      "description": "Allow the app to authenticate users against Home Assistant.",
+      "default": false,
+      "type": "boolean"
+    },
+    "auto_uart": {
+      "description": "Replaced by uart.",
+      "deprecated": true,
+      "type": "boolean"
+    },
+    "backup": {
+      "description": "Hot backups run while the app runs, cold backups stop it first.",
+      "default": "hot",
+      "enum": ["hot", "cold"],
+      "type": "string"
+    },
+    "backup_exclude": {
+      "description": "Glob patterns of files to leave out of backups.",
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "backup_post": {
+      "description": "Command to run in the container after a backup.",
+      "type": "string"
+    },
+    "backup_pre": {
+      "description": "Command to run in the container before a backup.",
+      "type": "string"
+    },
+    "boot": {
+      "description": "Whether the app starts at boot.",
+      "default": "auto",
+      "enum": ["auto", "manual", "manual_only"],
+      "type": "string"
+    },
+    "breaking_versions": {
+      "description": "Versions that need a manual update.",
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "codenotary": {
+      "description": "No longer used by the Supervisor.",
+      "deprecated": true
+    },
+    "description": {
+      "description": "Short description of the app.",
+      "type": "string"
+    },
+    "devices": {
+      "description": "Device paths to map into the container, such as /dev/ttyAMA0.",
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "devicetree": {
+      "description": "Map /device-tree into the container.",
+      "default": false,
+      "type": "boolean"
+    },
+    "discovery": {
+      "description": "Services this app provides for Home Assistant discovery.",
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "docker_api": {
+      "description": "Give the app read-only access to the Docker API.",
+      "default": false,
+      "type": "boolean"
+    },
+    "environment": {
+      "description": "Environment variables for the container.",
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    },
+    "full_access": {
+      "description": "Give the app full access to the hardware.",
+      "default": false,
+      "type": "boolean"
+    },
+    "gpio": {
+      "description": "Map /sys/class/gpio into the container.",
+      "default": false,
+      "type": "boolean"
+    },
+    "hassio_api": {
+      "description": "Give the app access to the Supervisor API.",
+      "default": false,
+      "type": "boolean"
+    },
+    "hassio_role": {
+      "description": "The role of the app on the Supervisor API.",
+      "default": "default",
+      "enum": ["admin", "backup", "default", "homeassistant", "manager"],
+      "type": "string"
+    },
+    "homeassistant": {
+      "description": "The minimum Home Assistant version the app needs.",
+      "type": "string"
+    },
+    "homeassistant_api": {
+      "description": "Give the app access to the Home Assistant API.",
+      "default": false,
+      "type": "boolean"
+    },
+    "host_dbus": {
+      "description": "Use the D-Bus of the host.",
+      "default": false,
+      "type": "boolean"
+    },
+    "host_ipc": {
+      "description": "Share the IPC namespace of the host.",
+      "default": false,
+      "type": "boolean"
+    },
+    "host_network": {
+      "description": "Run the app on the network of the host.",
+      "default": false,
+      "type": "boolean"
+    },
+    "host_pid": {
+      "description": "Run the app in the PID namespace of the host.",
+      "default": false,
+      "type": "boolean"
+    },
+    "host_uts": {
+      "description": "Use the UTS namespace of the host.",
+      "default": false,
+      "type": "boolean"
+    },
+    "image": {
+      "description": "The image to pull, without a tag, such as ghcr.io/example/{arch}-app.",
+      "type": "string"
+    },
+    "ingress": {
+      "description": "Enable Ingress for the app.",
+      "default": false,
+      "type": "boolean"
+    },
+    "ingress_entry": {
+      "description": "The URL path Ingress opens.",
+      "type": "string"
+    },
+    "ingress_port": {
+      "description": "The port Ingress connects to; 0 picks one at random.",
+      "default": 8099,
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 65535
+    },
+    "ingress_stream": {
+      "description": "Stream requests to the app instead of buffering them.",
+      "default": false,
+      "type": "boolean"
+    },
+    "init": {
+      "description": "Run the Docker default init. Set to false for images with their own init, such as s6-overlay.",
+      "default": true,
+      "type": "boolean"
+    },
+    "journald": {
+      "description": "Map the journal of the host into the container, read-only.",
+      "default": false,
+      "type": "boolean"
+    },
+    "kernel_modules": {
+      "description": "Map the kernel modules of the host into the container, read-only.",
+      "default": false,
+      "type": "boolean"
+    },
+    "legacy": {
+      "description": "Enable this for images without a hass.io label.",
+      "default": false,
+      "type": "boolean"
+    },
+    "log_format": {
+      "description": "How the logs of the app are formatted.",
+      "default": "plain",
+      "enum": ["plain", "timestamp", "verbose"],
+      "type": "string"
+    },
+    "machine": {
+      "description": "The machines the app runs on; a ! in front excludes one.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": [
+          "generic-aarch64",
+          "generic-x86-64",
+          "green",
+          "intel-nuc",
+          "khadas-vim3",
+          "odroid-c2",
+          "odroid-c4",
+          "odroid-m1",
+          "odroid-n2",
+          "odroid-xu",
+          "qemuarm",
+          "qemuarm-64",
+          "qemux86",
+          "qemux86-64",
+          "raspberrypi",
+          "raspberrypi2",
+          "raspberrypi3",
+          "raspberrypi3-64",
+          "raspberrypi4",
+          "raspberrypi4-64",
+          "raspberrypi5-64",
+          "tinker",
+          "yellow",
+          "!generic-aarch64",
+          "!generic-x86-64",
+          "!green",
+          "!intel-nuc",
+          "!khadas-vim3",
+          "!odroid-c2",
+          "!odroid-c4",
+          "!odroid-m1",
+          "!odroid-n2",
+          "!odroid-xu",
+          "!qemuarm",
+          "!qemuarm-64",
+          "!qemux86",
+          "!qemux86-64",
+          "!raspberrypi",
+          "!raspberrypi2",
+          "!raspberrypi3",
+          "!raspberrypi3-64",
+          "!raspberrypi4",
+          "!raspberrypi4-64",
+          "!raspberrypi5-64",
+          "!tinker",
+          "!yellow"
+        ]
+      }
+    },
+    "map": {
+      "description": "Folders of the host to map into the container.",
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "description": "A folder type, optionally followed by :rw or :ro, such as share:rw.",
+            "type": "string",
+            "pattern": "^(?:data|config|ssl|local_apps|addons|backup|share|media|homeassistant_config|all_app_configs|all_addon_configs|app_config|addon_config)(?::(?:rw|ro))?$"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "description": "The folder to map.",
+                "type": "string",
+                "enum": [
+                  "addon_config",
+                  "addons",
+                  "all_addon_configs",
+                  "all_app_configs",
+                  "app_config",
+                  "backup",
+                  "config",
+                  "data",
+                  "homeassistant_config",
+                  "local_apps",
+                  "media",
+                  "share",
+                  "ssl"
+                ]
+              },
+              "read_only": {
+                "description": "Map the folder read-only.",
+                "type": "boolean"
+              },
+              "path": {
+                "description": "Where the folder ends up in the container.",
+                "type": "string"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "name": {
+      "description": "The name of the app.",
+      "type": "string"
+    },
+    "options": {
+      "description": "The default options of the app.",
+      "default": {},
+      "type": "object"
+    },
+    "panel_admin": {
+      "description": "Only show the Ingress panel to administrators.",
+      "default": true,
+      "type": "boolean"
+    },
+    "panel_icon": {
+      "description": "The icon of the Ingress panel.",
+      "default": "mdi:puzzle",
+      "type": "string"
+    },
+    "panel_title": {
+      "description": "The title of the Ingress panel.",
+      "type": "string"
+    },
+    "ports": {
+      "description": "Container ports to expose on the host; null leaves one disabled.",
+      "type": "object",
+      "propertyNames": { "$ref": "#/definitions/port" },
+      "additionalProperties": {
+        "anyOf": [
+          { "type": "integer", "minimum": 1, "maximum": 65535 },
+          { "type": "null" }
+        ]
+      }
+    },
+    "ports_description": {
+      "description": "A description for each of the ports.",
+      "type": "object",
+      "propertyNames": { "$ref": "#/definitions/port" },
+      "additionalProperties": { "type": "string" }
+    },
+    "privileged": {
+      "description": "Extra Linux capabilities for the container.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "AUDIT_WRITE",
+          "BPF",
+          "CHECKPOINT_RESTORE",
+          "DAC_READ_SEARCH",
+          "IPC_LOCK",
+          "MKNOD",
+          "NET_ADMIN",
+          "NET_RAW",
+          "PERFMON",
+          "SETFCAP",
+          "SYS_ADMIN",
+          "SYS_MODULE",
+          "SYS_NICE",
+          "SYS_PTRACE",
+          "SYS_RAWIO",
+          "SYS_RESOURCE",
+          "SYS_TIME"
+        ]
+      }
+    },
+    "realtime": {
+      "description": "Give the app access to the realtime scheduler.",
+      "default": false,
+      "type": "boolean"
+    },
+    "schema": {
+      "description": "The schema of the options, or false to skip validating them.",
+      "default": {},
+      "anyOf": [{ "const": false }, { "$ref": "#/definitions/schemaObject" }]
+    },
+    "services": {
+      "description": "Services the app provides or uses, such as mqtt:need.",
+      "type": "array",
+      "items": {
+        "description": "A service and how the app uses it, such as mqtt:want.",
+        "type": "string",
+        "pattern": "^(?:mqtt|mysql):(?:provide|want|need)$"
+      }
+    },
+    "slug": {
+      "description": "The unique identifier of the app, in letters, digits, -, _ and . only.",
+      "type": "string",
+      "pattern": "^[-_.A-Za-z0-9]+$"
+    },
+    "snapshot": {
+      "description": "Renamed to backup.",
+      "deprecated": true
+    },
+    "snapshot_exclude": {
+      "description": "Renamed to backup_exclude.",
+      "deprecated": true
+    },
+    "snapshot_post": {
+      "description": "Renamed to backup_post.",
+      "deprecated": true
+    },
+    "snapshot_pre": {
+      "description": "Renamed to backup_pre.",
+      "deprecated": true
+    },
+    "stage": {
+      "description": "How ready the app is.",
+      "default": "stable",
+      "enum": ["deprecated", "experimental", "stable"],
+      "type": "string"
+    },
+    "startup": {
+      "description": "When the app starts.",
+      "default": "application",
+      "type": "string",
+      "anyOf": [
+        { "enum": ["application", "initialize", "once", "services", "system"] },
+        { "enum": ["after", "before"], "deprecated": true }
+      ]
+    },
+    "stdin": {
+      "description": "Accept input on STDIN through the Supervisor API.",
+      "default": false,
+      "type": "boolean"
+    },
+    "supervisor_api_tcp": {
+      "description": "Reach the Supervisor API over TCP. No default on purpose: the Supervisor will change it.",
+      "type": "boolean"
+    },
+    "timeout": {
+      "description": "Seconds to wait for the app to stop.",
+      "default": 10,
+      "type": "integer",
+      "minimum": 10,
+      "maximum": 300
+    },
+    "tmpfs": {
+      "description": "Mount /tmp in memory.",
+      "default": false,
+      "anyOf": [{ "type": "boolean" }, { "type": "string", "deprecated": true }]
+    },
+    "uart": {
+      "description": "Map the serial devices of the host into the container.",
+      "default": false,
+      "type": "boolean"
+    },
+    "udev": {
+      "description": "Mount the udev database of the host, read-only.",
+      "default": false,
+      "type": "boolean"
+    },
+    "ulimits": {
+      "description": "Resource limits for the container, as one number or soft and hard limits.",
+      "default": {},
+      "type": "object",
+      "additionalProperties": {
+        "anyOf": [
+          { "type": "integer" },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["soft", "hard"],
+            "properties": {
+              "soft": { "type": "integer" },
+              "hard": { "type": "integer" }
+            }
+          }
+        ]
+      }
+    },
+    "url": {
+      "description": "The homepage of the app.",
+      "type": "string",
+      "format": "uri"
+    },
+    "usb": {
+      "description": "Map the USB devices of the host into the container.",
+      "default": false,
+      "type": "boolean"
+    },
+    "version": {
+      "description": "The version of the app. Quote it, YAML turns 1.10 into the number 1.1.",
+      "type": "string"
+    },
+    "video": {
+      "description": "Map the video devices of the host into the container.",
+      "default": false,
+      "type": "boolean"
+    },
+    "watchdog": {
+      "description": "Replaced by the HEALTHCHECK of the Dockerfile.",
+      "deprecated": true
+    },
+    "webui": {
+      "description": "The URL of the web interface, such as http://[HOST]:[PORT:8080]/.",
+      "type": "string",
+      "pattern": "^(?:https?|\\[PROTO:\\w+\\]):\\/\\/\\[HOST\\]:\\[PORT:\\d+\\].*$"
+    }
+  },
+  "definitions": {
+    "port": {
+      "description": "A container port with an optional protocol, such as 8080/tcp.",
+      "type": "string",
+      "pattern": "^\\d+(?:/tcp|/udp)?$"
+    },
+    "schemaObject": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/definitions/schemaElement" }
+    },
+    "schemaElement": {
+      "anyOf": [
+        { "$ref": "#/definitions/schemaType" },
+        {
+          "description": "A list of one element.",
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 1,
+          "items": {
+            "anyOf": [
+              { "$ref": "#/definitions/schemaType" },
+              { "$ref": "#/definitions/schemaObject" }
+            ]
+          }
+        },
+        { "$ref": "#/definitions/schemaObject" }
+      ]
+    },
+    "schemaType": {
+      "description": "An option type, such as str, int(1,10), list(a|b|c) or match(^\\d+$), with a ? at the end when it is optional.",
+      "type": "string",
+      "pattern": "^(?:bool|email|url|port|device(?:\\(subsystem=[a-z]+\\))?|str(?:\\(\\d*,\\d*\\))?|password(?:\\(\\d*,\\d*\\))?|int(?:\\((?:-?\\d+)?,(?:-?\\d+)?\\))?|float(?:\\((?:-?\\d*\\.?\\d+)?,(?:-?\\d*\\.?\\d+)?\\))?|match\\(.*\\)|list\\(.+\\))\\??$"
+    }
+  }
+}

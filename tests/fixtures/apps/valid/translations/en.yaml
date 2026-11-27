@@ -1,0 +1,13 @@
+---
+configuration:
+  log_level:
+    name: Log level
+    description: How much the app logs.
+  users:
+    name: Users
+    description: ~
+    fields:
+      name:
+        name: Name
+network:
+  8080/tcp: Web interface

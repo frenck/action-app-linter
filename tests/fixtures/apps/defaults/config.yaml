@@ -1,0 +1,24 @@
+---
+name: Defaults
+version: 1.0.0
+slug: defaults
+description: Every option at its default
+arch:
+  - amd64
+apparmor: true
+audio: false
+boot: auto
+backup: hot
+hassio_role: default
+ingress_port: 8099
+init: true
+log_format: plain
+options: {}
+panel_admin: true
+panel_icon: mdi:puzzle
+schema: {}
+stage: stable
+startup: application
+timeout: 10
+tmpfs: false
+ulimits: {}

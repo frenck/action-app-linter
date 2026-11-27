@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/frenck/action-app-linter/main/src/applinter/schemas/build.schema.json",
+  "title": "Home Assistant app build configuration",
+  "description": "The build.yaml of a Home Assistant app, as the Supervisor reads it.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "args": {
+      "description": "Extra build arguments for the Dockerfile.",
+      "default": {},
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    },
+    "build_from": {
+      "description": "The base image, as one image or one per architecture.",
+      "default": {},
+      "anyOf": [
+        { "$ref": "#/definitions/image" },
+        {
+          "type": "object",
+          "propertyNames": {
+            "enum": ["aarch64", "amd64", "armhf", "armv7", "i386"]
+          },
+          "additionalProperties": { "$ref": "#/definitions/image" }
+        }
+      ]
+    },
+    "codenotary": {
+      "description": "No longer used by the Supervisor.",
+      "deprecated": true
+    },
+    "labels": {
+      "description": "Extra labels for the image.",
+      "default": {},
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    },
+    "squash": {
+      "description": "Not supported by Docker BuildKit, which the Supervisor builds with.",
+      "deprecated": true
+    }
+  },
+  "definitions": {
+    "image": {
+      "description": "An image with an organization and an optional tag, such as ghcr.io/home-assistant/base:latest. Official Docker Hub images are in the library organization, such as library/debian.",
+      "type": "string",
+      "pattern": "^([a-zA-Z\\-\\.:\\d{}]+/)*?([\\-\\w{}]+)/([\\-\\w{}]+)(:[\\.\\-\\w{}]+)?$"
+    }
+  }
+}

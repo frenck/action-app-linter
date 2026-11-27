@@ -1,0 +1,8 @@
+---
+name: Single image
+version: dev
+slug: single_image
+description: One base image for every architecture
+arch:
+  - aarch64
+  - amd64

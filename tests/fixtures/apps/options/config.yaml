@@ -1,0 +1,17 @@
+---
+name: Options
+version: 1.0.0
+slug: options
+description: Options, ports and translations that do not line up
+arch:
+  - amd64
+ports:
+  8080/tcp: 8080
+ports_description:
+  8080/tcp: Web interface
+  9090/tcp: Metrics
+options:
+  log_level: info
+  leftover: true
+schema:
+  log_level: list(info|debug)

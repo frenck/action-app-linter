@@ -1,0 +1,6 @@
+---
+configuration:
+  log_level:
+    description: A translation without a name
+network: Not a mapping
+services: {}

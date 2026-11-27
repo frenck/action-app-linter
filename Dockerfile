@@ -1,0 +1,49 @@
+# The image installs the wheel built from this same commit, not a release
+# from PyPI, so the image and the package can never drift apart. Build the
+# wheel first, then the image:
+#
+#   uv build --wheel
+#   docker build .
+#
+# The dependencies are installed from uv.lock with their hashes checked.
+
+FROM ghcr.io/astral-sh/uv:0.13.10@sha256:a3ea1357342c1a4bf9a0c53a3deb1b55379aefa037338d8113d5771efa01774f AS uv
+
+FROM python:3.15-alpine3.23@sha256:32f06114a111c2467804d06194c5584f16804a78cfaf427fb1fcbb0b3391d0f1
+
+ENV \
+    UV_COMPILE_BYTECODE=1 \
+    UV_NO_CACHE=1 \
+    UV_SYSTEM_PYTHON=1
+
+RUN \
+    --mount=from=uv,source=/uv,target=/bin/uv \
+    --mount=type=bind,source=pyproject.toml,target=/build/pyproject.toml \
+    --mount=type=bind,source=uv.lock,target=/build/uv.lock \
+    --mount=type=bind,source=dist,target=/build/dist \
+    uv export \
+        --project /build \
+        --frozen \
+        --no-dev \
+        --no-emit-project \
+        --output-file /tmp/requirements.txt \
+    && uv pip install --require-hashes --requirements /tmp/requirements.txt \
+    && uv pip install --no-deps /build/dist/app_linter-*.whl \
+    && rm /tmp/requirements.txt
+
+# No USER: GitHub requires Docker actions to run as the default root user,
+# and this image is the action.
+ENTRYPOINT ["app-linter"]
+
+ARG BUILD_VERSION=dev
+LABEL \
+    maintainer="Franck Nijhof <opensource@frenck.dev>" \
+    org.opencontainers.image.title="App Linter" \
+    org.opencontainers.image.description="Linter for Home Assistant app configuration." \
+    org.opencontainers.image.vendor="Franck Nijhof" \
+    org.opencontainers.image.authors="Franck Nijhof <opensource@frenck.dev>" \
+    org.opencontainers.image.licenses="MIT" \
+    org.opencontainers.image.url="https://github.com/frenck/action-app-linter" \
+    org.opencontainers.image.source="https://github.com/frenck/action-app-linter" \
+    org.opencontainers.image.documentation="https://github.com/frenck/action-app-linter/blob/main/README.md" \
+    org.opencontainers.image.version=${BUILD_VERSION}

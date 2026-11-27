@@ -1,0 +1,3 @@
+.gitignore
+# Broken on purpose: the linter has to find what is wrong with them.
+tests/fixtures/

@@ -1,0 +1,13 @@
+---
+name: Hardware
+version: 1.0.0
+slug: hardware
+description: Full access, and the options it makes pointless
+arch:
+  - amd64
+full_access: true
+usb: true
+uart: true
+gpio: false
+devices:
+  - /dev/ttyUSB0

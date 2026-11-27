@@ -1,4 +1,4 @@
-# 🚀 Frenck's Github Action: Home Assistant App Linter
+# 🚀 Frenck's GitHub Action: Home Assistant App Linter
 
 [![GitHub Release][releases-shield]][releases]
 ![Project Stage][project-stage-shield]
@@ -11,11 +11,13 @@
 
 ## About
 
-This GitHub Action is able to validate/lint Home Assistant App configuration
-files.
+This GitHub Action checks the configuration of a Home Assistant app the way
+the Supervisor reads it: `config.yaml`, `build.yaml` and the files in
+`translations/`, in YAML or JSON.
 
-Besides checking for validity of app configuration files, it will
-also warn for default configurations that can be removed and cleaned up.
+It finds what the Supervisor refuses, what it silently ignores, what it
+deprecated, and options set to the value they have anyway. Every problem is
+an annotation on the line it is on, so it shows up right in the pull request.
 
 ## Usage
 
@@ -28,90 +30,139 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: ⤵️ Check out code from GitHub
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
       - name: 🚀 Run Home Assistant App Lint
-        uses: frenck/action-app-linter@v2
+        uses: frenck/action-app-linter@v3.0.0
         with:
-          path: "./app"
+          path: "./example"
 ```
 
 ## Arguments
 
-|    Input    |                           Description                            |    Usage     |
-| :---------: | :--------------------------------------------------------------: | :----------: |
-|   `path`    |     Path to the folder containing the app config.json file.      | **Required** |
-| `community` | Enable Home Assistant Community Apps mode, with specific checks. |  _Optional_  |
+|    Input    | Description                                                            |    Usage     |
+| :---------: | :--------------------------------------------------------------------- | :----------: |
+|   `path`    | Path to the app, the directory its `config.yaml` is in.                | **Required** |
+| `community` | Add the checks of the Home Assistant Community Apps project.           |  _Optional_  |
+|  `ignore`   | Rules to skip, separated by commas or newlines, such as `full-access`. |  _Optional_  |
 
-## Updating the JSON Schema
+Errors fail the run, warnings do not.
 
-For the larger part, JSON Schemas are used to validate the configuration files.
-The schema files for both the app `config.json` and `build.json` can be found
-in the `src/` folder.
+## Rules
 
-- `src/config.schema.json` is used to validate `config.json`
-- `src/build.schema.json` is used to validate `build.json`
+Each finding names its rule, so you can look it up here, or skip it with the
+`ignore` input.
 
-If you adjust the schema, please make sure they are pretty:
+| Rule                         | Level   | What it finds                                                                 |
+| ---------------------------- | ------- | ----------------------------------------------------------------------------- |
+| `app-not-found`              | error   | There is no app configuration.                                                |
+| `invalid-file`               | error   | A file is not valid YAML or JSON, or not a mapping.                           |
+| `multiple-files`             | error   | A file exists in more than one format, and only one of them is read.          |
+| `duplicate-key`              | error   | A key is set more than once; only the last one counts.                        |
+| `schema`                     | error   | A value does not match what the Supervisor accepts.                           |
+| `unknown-key`                | error   | A key the Supervisor does not know.                                           |
+| `default-value`              | error   | An option is set to its default; leave it out.                                |
+| `invalid-image`              | error   | `image` is not a valid image name.                                            |
+| `invalid-slug`               | error   | The slug is too long, or does not make a valid image name.                    |
+| `invalid-url`                | error   | `url` is not a valid URL.                                                     |
+| `option-not-in-schema`       | error   | An option has no entry in the schema, so the Supervisor drops it.             |
+| `port-description-unknown`   | warning | `ports_description` describes a port that is not in `ports`.                  |
+| `map-conflict`               | error   | `map` holds folders that rule each other out.                                 |
+| `full-access`                | warning | `full_access` gives the app all hardware.                                     |
+| `full-access-redundant`      | error   | `full_access` already covers `devices`, `gpio`, `uart` and `usb`.             |
+| `ingress-webui`              | error   | `webui` is not used when Ingress is enabled.                                  |
+| `ingress-port-random`        | error   | A random Ingress port is only needed on the host network.                     |
+| `ingress-port-reserved`      | error   | A mapped port is in the range random Ingress ports come from.                 |
+| `cold-backup-hooks`          | error   | Backup commands do not run for cold backups.                                  |
+| `deprecated-arch`            | warning | An architecture Home Assistant no longer supports.                            |
+| `deprecated-machine`         | warning | A machine Home Assistant no longer supports.                                  |
+| `deprecated-advanced`        | warning | The Supervisor ignores `advanced`.                                            |
+| `deprecated-auto-uart`       | error   | `auto_uart` was replaced by `uart`.                                           |
+| `deprecated-codenotary`      | error   | The Supervisor no longer uses `codenotary`.                                   |
+| `deprecated-devices`         | error   | `devices` uses the old format with permissions.                               |
+| `deprecated-map-config`      | warning | `config` in `map` was replaced by `homeassistant_config`.                     |
+| `deprecated-map-type`        | warning | A map type that was renamed for apps.                                         |
+| `deprecated-snapshot`        | error   | The snapshot options were renamed to backup.                                  |
+| `deprecated-squash`          | error   | `squash` is not supported by Docker BuildKit, which the Supervisor uses.      |
+| `deprecated-startup`         | error   | `startup` uses `before` or `after`.                                           |
+| `deprecated-tmpfs`           | error   | `tmpfs` uses the old format; it is a boolean now.                             |
+| `deprecated-watchdog`        | error   | `watchdog` is obsolete; use a HEALTHCHECK in the Dockerfile.                  |
+| `build-deprecated`           | warning | The Supervisor deprecated `build.yaml` for the apps it builds.                |
+| `build-arch-missing`         | error   | An architecture in `config.yaml` has no base image in `build.yaml`.           |
+| `build-arch-unused`          | warning | A base image in `build.yaml` is for an architecture the app does not support. |
+| `translation-unknown-option` | warning | A translation names an option that is not in the schema.                      |
+| `translation-unknown-port`   | warning | A translation describes a port that is not in `ports`.                        |
+| `community-version`          | error   | The version of a community app is `dev`; releases set the real one.           |
+| `community-build-file`       | error   | A community app needs a `build.yaml` with a base image per architecture.      |
+
+The last two only run with `community: true`. In that mode `build-deprecated`
+does not run: the Community Apps workflows still read the base images from
+`build.yaml`.
+
+## Running it locally
+
+The linter is a Python package, and the action runs the same command:
 
 ```bash
-npx prettier --write ./src/config.schema.json
+uvx --from git+https://github.com/frenck/action-app-linter app-linter ./example
 ```
 
-## Changelog & Releases
+Give it more than one directory to lint several apps at once. `--community`
+and `--ignore` work like the inputs of the action, and `--format github`
+prints the annotations instead of plain lines.
 
-This repository keeps a change log using [GitHub's releases][releases]
-functionality.
+## Editor support
 
-Releases are based on [Semantic Versioning][semver], and use the format
-of `MAJOR.MINOR.PATCH`. In a nutshell, the version will be incremented
-based on the following:
+The JSON schemas in [`src/applinter/schemas`](src/applinter/schemas) work in
+any editor that supports them. For example, with the YAML extension for
+Visual Studio Code, put this at the top of `config.yaml`:
+
+```yaml
+# yaml-language-server: $schema=https://raw.githubusercontent.com/frenck/action-app-linter/main/src/applinter/schemas/config.schema.json
+```
+
+## Upgrading from version 2
+
+Version 3 is a rewrite, and it is stricter. It checks a lot more of what the
+Supervisor checks, so an app that passed version 2 may fail version 3. What
+changed:
+
+- The checks now follow the current Supervisor: new machines and
+  capabilities pass, and values the Supervisor refuses (such as a `timeout`
+  below 10, an `image` with a tag, or a bad option type in `schema`) fail.
+- `supervisor_api_tcp: true` is no longer flagged as a default. The
+  Supervisor has no default on purpose, as it will change it.
+- Translations are checked, and so are `options` against `schema` and
+  `ports_description` against `ports`.
+- `apparmor` must be a boolean; a custom profile goes in `apparmor.txt`.
+- Findings point at the line, and name the rule.
+- The action no longer builds an image when it runs, so it starts in seconds.
+- There is no moving `v3` tag. Pin an exact version, and let Dependabot or
+  Renovate bump it.
+
+## Versions & Updating
+
+Releases are based on [Semantic Versioning][semver], and use the format of
+`MAJOR.MINOR.PATCH`. In a nutshell, the version will be incremented based on
+the following:
 
 - `MAJOR`: Incompatible or major changes.
 - `MINOR`: Backwards-compatible new features and enhancements.
 - `PATCH`: Backwards-compatible bugfixes and package updates.
 
-## Versions & Updating
-
-You can specify which version of this GitHub Action your workflow should use.
-And even allowing for using the latest major or minor version.
-
-For example; this will use release `v1.1.1` of a GitHub Action:
+Releases are immutable, and every tag is an exact version. Nothing like
+`v3` moves along with new releases, so a run never changes under you. Pin a
+version, or better, the commit SHA of one:
 
 ```yaml
 - name: 🚀 Run Home Assistant App Lint
-  uses: frenck/action-app-linter@v1.1.1
-```
-
-While the following example, will use the `v1.1.x` minor release, for example
-if `v1.1.2` is the latest releases (starting with `v1.1`), this will run
-`v1.1.2`:
-
-```yaml
-- name: 🚀 Run Home Assistant App Lint
-  uses: frenck/action-app-linter@v1.1
-```
-
-As in the examples throughout the documentation, the following example is
-locked on major version, meaning any `v1.x.x` latest version will be used,
-as long as it is version 1.
-
-```yaml
-- name: 🚀 Run Home Assistant App Lint
-  uses: frenck/action-app-linter@v1
+  uses: frenck/action-app-linter@v3.0.0
 ```
 
 ### Automatically update using Dependabot
 
-The advantage of locking against a more specific version, is that it prevents
-surprises if an issue or breaking changes were introduced in a newer release.
-
-The disadvantage of being more specific, is that it requires you to keep things
-up to date. Fortunately, GitHub has a tool for that, called: Dependabot.
-
-Dependabot can automatically open a pull request on your repository to update
-this Action for you. You can instantly see if the new version works (as the
-pull request shows the success or failure status) and you can decide to
-merge it in by hitting the merge button. Quick, easy and always up2date.
+Dependabot can open a pull request on your repository whenever there is a
+new release. You can instantly see if the new version works (as the pull
+request shows the success or failure status) and you can decide to merge it.
 
 To enable Dependabot, create a file called `.github/dependabot.yaml`:
 
@@ -124,8 +175,10 @@ updates:
       interval: daily
 ```
 
-Your all set! Dependabot will now check (and update) your GitHub actions
-every day. 🤩
+## Changelog & Releases
+
+This repository keeps a change log using [GitHub's releases][releases]
+functionality.
 
 ## Contributing
 

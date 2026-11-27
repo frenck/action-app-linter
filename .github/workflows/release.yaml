@@ -1,0 +1,252 @@
+---
+name: Release
+
+# Releases are immutable once published, so this workflow does the
+# publishing itself: it checks the release draft first, and only then
+# publishes it, at the very commit it checked and built. Start it with
+# "Run workflow" on main, instead of publishing the draft by hand.
+#
+# yamllint disable-line rule:truthy
+on:
+  workflow_dispatch:
+
+# One release at a time, and never cancel one halfway.
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+env:
+  DEFAULT_PYTHON: "3.14"
+  IMAGE: ghcr.io/frenck/action-app-linter
+
+permissions:
+  contents: read
+
+jobs:
+  prepare:
+    name: Check the release draft
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      # Only those who can push see release drafts.
+      contents: write
+      actions: read # Check every workflow run on the commit passed
+    outputs:
+      id: ${{ steps.draft.outputs.id }}
+      tag: ${{ steps.draft.outputs.tag }}
+      version: ${{ steps.draft.outputs.version }}
+    steps:
+      - name: ⤵️ Check out code from GitHub
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: 🔍 Find the release draft
+        id: draft
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          drafts=$(gh api "repos/${REPOSITORY}/releases" --paginate \
+            --jq '.[] | select(.draft) | [.id, .tag_name] | @tsv')
+          if [[ $(grep --count . <<< "${drafts}") != "1" ]]; then
+            echo "::error::Expected exactly one release draft, found: ${drafts:-none}"
+            exit 1
+          fi
+
+          read -r id tag <<< "${drafts}"
+          if gh api "repos/${REPOSITORY}/git/ref/tags/${tag}" --silent 2>/dev/null; then
+            echo "::error::Tag ${tag} exists already"
+            exit 1
+          fi
+
+          version="${tag,,}"
+          {
+            echo "id=${id}"
+            echo "tag=${tag}"
+            echo "version=${version#v}"
+          } >> "${GITHUB_OUTPUT}"
+      # Only a commit that passed every check on main gets released.
+      - name: 🔍 Check the commit passed its checks
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          COMMIT: ${{ github.sha }}
+        run: |
+          runs=$(gh api "repos/${REPOSITORY}/actions/runs?head_sha=${COMMIT}&event=push" \
+            --paginate --jq '.workflow_runs[] | [.name, .status, .conclusion] | @tsv')
+          if ! grep --quiet "^Testing"$'\t' <<< "${runs}"; then
+            echo "::error::No test run found for ${COMMIT}"
+            exit 1
+          fi
+
+          failed=0
+          while IFS=$'\t' read -r name status conclusion; do
+            if [[ "${status}" != "completed" ]] \
+              || [[ "${conclusion}" != "success" && "${conclusion}" != "skipped" ]]; then
+              echo "::error::${name} is ${conclusion:-${status}} for ${COMMIT}"
+              failed=1
+            fi
+          done <<< "${runs}"
+          exit "${failed}"
+      # The action runs the image of its own release. Checked before anything
+      # gets published: a published release can never be changed.
+      - name: 🔍 Check the action uses this release
+        env:
+          VERSION: ${{ steps.draft.outputs.version }}
+        run: |
+          used=$(grep --only-matching "docker://${IMAGE}:[^[:space:]\"]*" action.yaml | sort --unique)
+          if [[ "${used}" != "docker://${IMAGE}:${VERSION}" ]]; then
+            echo "::error file=action.yaml::action.yaml must use docker://${IMAGE}:${VERSION}, not ${used:-nothing}"
+            exit 1
+          fi
+
+  build:
+    name: Build package
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: prepare
+    permissions:
+      # Job permissions replace the top-level block, so the checkout needs read.
+      contents: read
+      attestations: write # Sign build provenance
+      id-token: write # Sign build provenance
+    steps:
+      - name: ⤵️ Check out code from GitHub
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: 🏗 Set up uv and Python ${{ env.DEFAULT_PYTHON }}
+        uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
+        with:
+          # No cache in the publish path: a poisoned cache must never reach
+          # the artifacts we publish.
+          enable-cache: false
+          python-version: ${{ env.DEFAULT_PYTHON }}
+      - name: 🏗 Set package version
+        env:
+          VERSION: ${{ needs.prepare.outputs.version }}
+        run: uv version --no-sync "${VERSION}"
+      - name: 🏗 Build package
+        run: uv build
+      - name: 🧭 Locate the built wheel
+        run: echo "WHEEL_PATH=$(ls dist/app_linter-*-py3-none-any.whl)" >> "${GITHUB_ENV}"
+      - name: 📝 Generate a CycloneDX SBOM
+        uses: anchore/sbom-action@dfcb83b97731532d72be422cbc51ee64adb6fd56 # v0.24.4
+        with:
+          file: ${{ env.WHEEL_PATH }}
+          format: cyclonedx-json
+          output-file: app-linter.cdx.json
+          upload-artifact: false
+          upload-release-assets: false
+      - name: 📝 Attest build provenance
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: "dist/*"
+      - name: 📝 Attest the SBOM against the wheel
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+        with:
+          subject-path: ${{ env.WHEEL_PATH }}
+          sbom-path: app-linter.cdx.json
+      - name: ⬆️ Upload distributions
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: dist
+          path: dist/
+          if-no-files-found: error
+
+  release:
+    name: Publish the release
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # Only once the image exists: the release is immutable the moment it is
+    # published, and its action.yaml points at that image.
+    needs:
+      - prepare
+      - image
+    permissions:
+      contents: write # Publish the release draft
+    steps:
+      # Pinned to the commit this run checked and built, so a merge in the
+      # meantime cannot slip into the release.
+      - name: 🚀 Publish the release draft
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          RELEASE_ID: ${{ needs.prepare.outputs.id }}
+          TAG: ${{ needs.prepare.outputs.tag }}
+          COMMIT: ${{ github.sha }}
+        run: |
+          gh api --method PATCH "repos/${REPOSITORY}/releases/${RELEASE_ID}" \
+            -f tag_name="${TAG}" \
+            -f target_commitish="${COMMIT}" \
+            -F draft=false
+
+  image:
+    name: Publish image to GHCR
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs:
+      - prepare
+      - build
+    permissions:
+      contents: read
+      packages: write # Push the image to GHCR
+      attestations: write # Sign build provenance
+      id-token: write # Sign build provenance and the image itself
+    steps:
+      - name: ⤵️ Check out code from GitHub
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: ⬇️ Download distributions
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: dist
+          path: dist/
+      - name: 🏗 Set up QEMU
+        uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
+      - name: 🏗 Set up Docker Buildx
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+      - name: 🏗 Log in to the GitHub Container Registry
+        uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      # Only the exact version: no 1.2, 1 or latest that move along with
+      # every release. Whoever runs the image pins a version.
+      - name: 🏷 Determine image tags
+        id: meta
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
+        with:
+          images: ${{ env.IMAGE }}
+          flavor: latest=false
+          tags: type=semver,pattern={{version}},value=${{ needs.prepare.outputs.version }}
+      - name: 🚀 Build and push image
+        id: push
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          # A path context, not the Git one: the wheel lives in dist/.
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          sbom: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            BUILD_VERSION=${{ needs.prepare.outputs.version }}
+      - name: 📝 Attest image build provenance
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-name: ${{ env.IMAGE }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
+      - name: 🏗 Install cosign
+        uses: sigstore/cosign-installer@881c63bd87e38389154debd8331404ce7ca8a3ab # v4.1.4
+      # Keyless: the signature is bound to this workflow run through its
+      # OIDC identity, verifiable with `cosign verify`.
+      - name: 🔏 Sign image
+        env:
+          DIGEST: ${{ steps.push.outputs.digest }}
+        run: cosign sign --yes "${IMAGE}@${DIGEST}"
